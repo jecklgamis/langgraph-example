@@ -1,6 +1,9 @@
 import os
 
-LLM_PROVIDER = os.environ.get("LLM_PROVIDER", "ollama")
+
+def get_default_provider():
+    return os.environ.get("LLM_PROVIDER", "ollama")
+
 
 LLM_CONFIGS = {
     # Ollama in OpenAI-compatible API mode (default path, no langchain_ollama dependency required)
@@ -34,8 +37,9 @@ LLM_CONFIGS = {
     },
 }
 
-def create_llm(provider: str = None):
-    config = {**LLM_CONFIGS[provider or LLM_PROVIDER]}
+
+def create_llm(provider: str) -> None:
+    config = {**LLM_CONFIGS[provider or get_default_provider()]}
     provider_type = config.pop("provider")
 
     if provider_type == "openai":

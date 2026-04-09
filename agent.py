@@ -1,54 +1,89 @@
+import asyncio
 import sys
+from contextlib import AsyncExitStack
 
+import httpx
 from langchain_core.messages import HumanMessage
+from langchain_mcp_adapters.tools import load_mcp_tools
 from langgraph.graph import END, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode
+from mcp import ClientSession
+from mcp.client.streamable_http import streamable_http_client
 
-from core.llm_factory import create_llm
-from functions.machine_functions import run_hostname, run_df, run_du, run_netstat, run_ifconfig, list_files, read_file
-
-
-llm = create_llm()
-tools = [search_google, read_file, list_files, run_ifconfig, run_netstat, run_du, run_df, run_hostname]
-llm = llm.bind_tools(tools)
-
-
-def call_model(state: MessagesState):
-    return {"messages": [llm.invoke(state["messages"])]}
+from functions.config import get_local_tools
+from functions.machine import get_current_user
+from llm_factory import create_llm
+from mcp_servers import mcp_servers
 
 
-def should_continue(state: MessagesState):
-    if state["messages"][-1].tool_calls:
-        return "tools"
-    return END
+def build_app(tools: list):
+    llm = create_llm()
+    llm = llm.bind_tools(tools)
+
+    async def call_model(state: MessagesState):
+        return {"messages": [await llm.ainvoke(state["messages"])]}
+
+    def should_call_tools(state: MessagesState):
+        if state["messages"][-1].tool_calls:
+            return "tools"
+        return END
+
+    workflow = StateGraph(MessagesState)
+    workflow.add_node("agent", call_model)
+    workflow.add_node("tools", ToolNode(tools))
+    workflow.set_entry_point("agent")
+    workflow.add_conditional_edges("agent", should_call_tools)
+    workflow.add_edge("tools", "agent")
+    return workflow.compile()
 
 
-workflow = StateGraph(MessagesState)
-workflow.add_node("agent", call_model)
-workflow.add_node("tools", ToolNode(tools))
-workflow.set_entry_point("agent")
-workflow.add_conditional_edges("agent", should_continue)
-workflow.add_edge("tools", "agent")
+async def is_reachable(url: str) -> bool:
+    try:
+        async with httpx.AsyncClient() as client:
+            await client.get(url, timeout=2)
+        return True
+    except Exception:
+        return False
 
-app = workflow.compile()
 
+async def main():
+    async with AsyncExitStack() as stack:
+        mcp_tools = []
+        mcp_endpoints = [mcp['url'] for mcp in mcp_servers]
+        for url in mcp_endpoints:
+            if not await is_reachable(url):
+                print(f"Warning: MCP server not reachable, skipping: {url}")
+                continue
+            try:
+                read, write, _ = await stack.enter_async_context(streamable_http_client(url))
+                session = await stack.enter_async_context(ClientSession(read, write))
+                await session.initialize()
+                mcp_tools.extend(await load_mcp_tools(session))
+                print(f"Connected to MCP: {url}")
+            except Exception as e:
+                print(f"Warning: could not connect to {url}: {e}")
 
-def main():
-    print("Simple Agent (type 'quit' to exit)")
-    while True:
-        try:
-            user_input = input("\nYou: ").strip()
-        except (EOFError, KeyboardInterrupt):
-            break
-        if user_input and user_input.lower() in ("quit", "exit"):
-            print("See ya!")
-            sys.exit(0)
-        inputs = {"messages": [HumanMessage(content=user_input)]}
-        for output in app.stream(inputs):
-            for key, value in output.items():
-                print(value["messages"][-1].content)
-                print("---")
+        tools = get_local_tools + mcp_tools
+        app = build_app(tools)
+
+        print(f"Welcome to langgraph-example {get_current_user()}!")
+        print("Type 'quit/exit/bye' to exit")
+        while True:
+            try:
+                user_input = input("\nYou: ").strip()
+            except (EOFError, KeyboardInterrupt):
+                break
+            if not user_input:
+                continue
+            if user_input.lower() in ("quit", "exit", "bye"):
+                print("See ya!")
+                sys.exit(0)
+            inputs = {"messages": [HumanMessage(content=user_input)]}
+            async for output in app.astream(inputs):
+                for key, value in output.items():
+                    print(value["messages"][-1].content)
+                    print("---")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
