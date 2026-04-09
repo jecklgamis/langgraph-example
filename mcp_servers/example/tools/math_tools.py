@@ -1,11 +1,14 @@
+import logging
+
 from fastmcp import FastMCP
 
+logger = logging.getLogger(__name__)
 mcp = FastMCP("Math Server", instructions="A math utility server.")
 
 
 def _add(a: float, b: float) -> float:
     """Add two numbers."""
-    print(f"Adding {a} and {b}")
+    logger.debug("Adding %s and %s", a, b)
     return a + b
 
 

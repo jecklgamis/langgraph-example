@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import sys
 from contextlib import AsyncExitStack
 
@@ -14,6 +15,8 @@ from functions.config import get_local_tools
 from functions.machine import get_current_user
 from llm_factory import create_llm
 from mcp_servers import mcp_servers
+
+logger = logging.getLogger(__name__)
 
 
 def build_app(tools: list):
@@ -52,18 +55,18 @@ async def main():
         mcp_endpoints = [mcp['url'] for mcp in mcp_servers]
         for url in mcp_endpoints:
             if not await is_reachable(url):
-                print(f"Warning: MCP server not reachable, skipping: {url}")
+                logger.warning("MCP server not reachable, skipping: %s", url)
                 continue
             try:
                 read, write, _ = await stack.enter_async_context(streamable_http_client(url))
                 session = await stack.enter_async_context(ClientSession(read, write))
                 await session.initialize()
                 mcp_tools.extend(await load_mcp_tools(session))
-                print(f"Connected to MCP: {url}")
+                logger.info("Connected to MCP: %s", url)
             except Exception as e:
-                print(f"Warning: could not connect to {url}: {e}")
+                logger.warning("Could not connect to %s: %s", url, e)
 
-        tools = get_local_tools + mcp_tools
+        tools = get_local_tools() + mcp_tools
         app = build_app(tools)
 
         print(f"Welcome to langgraph-example {get_current_user()}!")

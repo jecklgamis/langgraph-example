@@ -1,9 +1,13 @@
+import logging
+
 from ddgs import DDGS
+
+logger = logging.getLogger(__name__)
 
 
 def search_web(query: str) -> str:
     """Performs a web search and returns the top results."""
-    print("Let me do some web searching for that")
+    logger.info("Searching the web for: %s", query)
     try:
         results = DDGS().text(query, max_results=10)
         if not results:
