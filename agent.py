@@ -52,13 +52,15 @@ async def is_reachable(url: str) -> bool:
 async def main():
     async with AsyncExitStack() as stack:
         mcp_tools = []
-        mcp_endpoints = [mcp['url'] for mcp in mcp_servers]
+        mcp_endpoints = [mcp["url"] for mcp in mcp_servers]
         for url in mcp_endpoints:
             if not await is_reachable(url):
                 logger.warning("MCP server not reachable, skipping: %s", url)
                 continue
             try:
-                read, write, _ = await stack.enter_async_context(streamable_http_client(url))
+                read, write, _ = await stack.enter_async_context(
+                    streamable_http_client(url)
+                )
                 session = await stack.enter_async_context(ClientSession(read, write))
                 await session.initialize()
                 mcp_tools.extend(await load_mcp_tools(session))

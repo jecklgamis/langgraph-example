@@ -44,15 +44,19 @@ def create_llm(provider: str = None) -> None:
 
     if provider_type == "openai":
         from langchain_openai import ChatOpenAI
+
         return ChatOpenAI(**config)
     elif provider_type == "google_genai":
         from langchain_google_genai import ChatGoogleGenerativeAI
+
         return ChatGoogleGenerativeAI(**config)
     elif provider_type == "ollama_native":
         from langchain_ollama import ChatOllama
+
         return ChatOllama(**config)
     elif provider_type == "openrouter":
         from langchain_openrouter import ChatOpenRouter
+
         return ChatOpenRouter(**config)
     else:
         raise ValueError(f"Unknown provider type: {provider_type}")

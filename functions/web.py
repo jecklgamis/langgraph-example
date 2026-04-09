@@ -12,8 +12,6 @@ def search_web(query: str) -> str:
         results = DDGS().text(query, max_results=10)
         if not results:
             return "No results found."
-        return "\n\n".join(
-            f"{r['title']}\n{r['href']}\n{r['body']}" for r in results
-        )
+        return "\n\n".join(f"{r['title']}\n{r['href']}\n{r['body']}" for r in results)
     except Exception as e:
         return f"Search failed: {e}"
