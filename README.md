@@ -4,9 +4,10 @@ A LangGraph agent example with local function tools and optional MCP server conn
 
 ## What's In The Box?
 
-- Local function tools (filesystem, network, web search)
+- Local function tools (filesystem, network, web search, math, bash)
 - Multiple MCP server connections (math, perf)
 - Configurable LLM providers (Ollama, OpenAI, Gemini, OpenRouter). Uses Ollama by default.
+- HTTP API via FastAPI (`server_api.py`)
 - Standard Python logging throughout
 
 ## Getting Started
@@ -30,6 +31,28 @@ export OPENAI_API_KEY=your-api-key
 LLM_PROVIDER=openai ./run-agent.sh
 ```
 
+## Running as an HTTP API
+
+Start the FastAPI server:
+
+```bash
+python server_api.py
+```
+
+Send requests:
+
+```bash
+# Single response
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "what is 2 + 2?"}'
+
+# Streaming response
+curl -X POST http://localhost:8000/chat/stream \
+  -H "Content-Type: application/json" \
+  -d '{"message": "list files in /tmp"}'
+```
+
 ## Using MCP Servers
 
 From the `mcp_servers/example` directory, start the MCP server:
@@ -46,10 +69,10 @@ Then run the agent — it will automatically connect to the MCP server and load 
 
 ## Environment Variables
 
-| Variable             | Default                 | Purpose                          |
-|----------------------|-------------------------|----------------------------------|
-| `LLM_PROVIDER`       | `ollama`                | LLM backend                      |
-| `MCP_SERVER_URL`     | `http://localhost:58080` | MCP server base URL             |
-| `OPENAI_API_KEY`     | —                       | Required when using `openai`     |
-| `GEMINI_API_KEY`     | —                       | Required when using `gemini`     |
-| `OPENROUTER_API_KEY` | —                       | Required when using `openrouter` |
+| Variable             | Default                  | Purpose                          |
+|----------------------|--------------------------|----------------------------------|
+| `LLM_PROVIDER`       | `ollama`                 | LLM backend                      |
+| `MCP_SERVER_URL`     | `http://localhost:58080`  | MCP server base URL             |
+| `OPENAI_API_KEY`     | —                        | Required when using `openai`     |
+| `GEMINI_API_KEY`     | —                        | Required when using `gemini`     |
+| `OPENROUTER_API_KEY` | —                        | Required when using `openrouter` |
