@@ -1,13 +1,16 @@
 import asyncio
 import logging
+import os
 from contextlib import AsyncExitStack
+from typing import Optional
 
 import httpx
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, ToolMessage
 from langchain_mcp_adapters.tools import load_mcp_tools
-from langgraph.checkpoint.memory import MemorySaver
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.graph import END, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode
+from langgraph.types import Command
 from mcp import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 
@@ -20,22 +23,37 @@ from mcp_servers import mcp_servers
 logger = logging.getLogger(__name__)
 
 
-def build_app(tools: list):
+class AgentState(MessagesState):
+    user_id: str
+    session_metadata: Optional[dict]
+
+
+def setup_tracing():
+    if os.environ.get("LANGCHAIN_API_KEY"):
+        os.environ.setdefault("LANGCHAIN_TRACING_V2", "true")
+        os.environ.setdefault("LANGCHAIN_PROJECT", "langgraph-example")
+        logger.info("LangSmith tracing enabled (project: %s)", os.environ["LANGCHAIN_PROJECT"])
+    else:
+        logger.info("LangSmith tracing disabled (set LANGCHAIN_API_KEY to enable)")
+
+
+def build_app(tools: list, checkpointer=None, human_in_loop: bool = False):
     llm = create_llm().bind_tools(tools)
 
-    async def call_model(state: MessagesState):
+    async def call_model(state: AgentState):
         return {"messages": [await llm.ainvoke(state["messages"])]}
 
-    def should_call_tools(state: MessagesState):
+    def should_call_tools(state: AgentState):
         return "tools" if state["messages"][-1].tool_calls else END
 
-    workflow = StateGraph(MessagesState)
+    workflow = StateGraph(AgentState)
     workflow.add_node("agent", call_model)
     workflow.add_node("tools", ToolNode(tools))
     workflow.set_entry_point("agent")
     workflow.add_conditional_edges("agent", should_call_tools)
     workflow.add_edge("tools", "agent")
-    return workflow.compile(checkpointer=MemorySaver())
+    interrupt_before = ["tools"] if human_in_loop else []
+    return workflow.compile(checkpointer=checkpointer, interrupt_before=interrupt_before)
 
 
 async def load_mcp_tools_from_servers(stack: AsyncExitStack) -> list:
@@ -61,12 +79,51 @@ async def load_mcp_tools_from_servers(stack: AsyncExitStack) -> list:
     return tools
 
 
+async def stream_tokens(app, inputs_or_command, config: dict) -> str:
+    """Streams tokens from the model and returns the full response."""
+    buffer = []
+    async for event in app.astream_events(inputs_or_command, config=config, version="v2"):
+        if event["event"] == "on_chat_model_stream":
+            chunk = event["data"]["chunk"]
+            if isinstance(chunk.content, str) and chunk.content:
+                print(chunk.content, end="", flush=True)
+                buffer.append(chunk.content)
+    print()
+    return validate_output("".join(buffer))
+
+
+async def handle_interrupt(app, config: dict) -> None:
+    """Handles human-in-the-loop interrupts: shows pending tool calls and asks for confirmation."""
+    state = await app.aget_state(config)
+    while state.next:
+        last_msg = state.values["messages"][-1]
+        print("\n[Pending tool calls]")
+        for tc in last_msg.tool_calls:
+            print(f"  {tc['name']}({tc['args']})")
+        confirm = input("Allow? [y/N] ").strip().lower()
+        if confirm == "y":
+            await stream_tokens(app, Command(resume=True), config)
+        else:
+            tool_messages = [
+                ToolMessage(content="Tool call rejected by user.", tool_call_id=tc["id"])
+                for tc in last_msg.tool_calls
+            ]
+            await app.aupdate_state(config, {"messages": tool_messages}, as_node="tools")
+            await stream_tokens(app, None, config)
+        state = await app.aget_state(config)
+
+
 async def main():
+    setup_tracing()
     async with AsyncExitStack() as stack:
+        checkpointer = await stack.enter_async_context(
+            AsyncSqliteSaver.from_conn_string("checkpoints.db")
+        )
         mcp_tools = await load_mcp_tools_from_servers(stack)
-        app = build_app(get_local_tools() + mcp_tools)
+        app = build_app(get_local_tools() + mcp_tools, checkpointer=checkpointer, human_in_loop=True)
 
         config = {"configurable": {"thread_id": "repl"}}
+        inputs_base = {"user_id": get_current_user(), "session_metadata": {}}
         print("Type 'quit/exit/bye' to exit")
         while True:
             try:
@@ -86,13 +143,9 @@ async def main():
             if not await is_safe(user_input):
                 print("Blocked: input flagged as unsafe.")
                 continue
-            inputs = {"messages": [HumanMessage(content=user_input)]}
-            async for output in app.astream(inputs, config=config):
-                for _, value in output.items():
-                    content = validate_output(value["messages"][-1].content)
-                    if content:
-                        print(content)
-                        print("---")
+            inputs = {**inputs_base, "messages": [HumanMessage(content=user_input)]}
+            await stream_tokens(app, inputs, config)
+            await handle_interrupt(app, config)
 
 
 if __name__ == "__main__":

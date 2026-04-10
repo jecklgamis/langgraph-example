@@ -12,4 +12,5 @@ mcp==1.26.0
 openrouter==0.8.1
 langchain-openrouter==0.2.1
 duckduckgo-search==8.1.1
+langgraph-checkpoint-sqlite==2.0.10
 pytest==8.4.1
