@@ -6,7 +6,7 @@ A LangGraph agent with local function tools, guardrails, memory, human-in-the-lo
 
 - Local tools: filesystem, network, web search, math, bash
 - Optional MCP server connections (math, perf)
-- Configurable LLM providers: Ollama (default), OpenAI, Gemini, OpenRouter
+- Configurable LLM providers: Ollama (default), OpenAI, Gemini
 - Conversation memory via LangGraph checkpointing (SQLite)
 - Guardrails: input validation, LLM-as-judge, output PII redaction, bash command denylist
 - Human-in-the-loop tool call confirmation
@@ -71,6 +71,14 @@ Requires `server_api.py` running on port 8000. Vite proxies `/chat` to the backe
 |----------------------|----------------------|---------------------------------------------------|
 | `LLM_PROVIDER`       | `ollama`             | LLM backend                                       |
 | `LLM_MODEL`          | _(provider default)_ | Override the model name for the selected provider |
+
+### Default models per provider
+
+| Provider  | Default Model       |
+|-----------|---------------------|
+| `ollama`  | `llama3.2`          |
+| `openai`  | `gpt-4.1-nano`      |
+| `gemini`  | `gemini-2.5-flash`  |
 | `OPENAI_API_KEY`     | —                    | Required when using `openai`                      |
 | `GEMINI_API_KEY`     | —                    | Required when using `gemini`                      |
 | `GUARDRAILS_ENABLED` | `false`              | Enable input/output guardrails                    |
