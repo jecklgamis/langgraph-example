@@ -5,6 +5,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
 from langchain_mistralai import ChatMistralAI
 from langchain_openai import ChatOpenAI
+from langchain_openrouter import ChatOpenRouter
 
 _DEFAULT_MODELS = {
     "ollama": "llama3.2",
@@ -13,6 +14,7 @@ _DEFAULT_MODELS = {
     "anthropic": "claude-sonnet-4-6",
     "groq": "llama-3.3-70b-versatile",
     "mistral": "mistral-large-latest",
+    "openrouter": "openrouter/auto",
 }
 
 _PROVIDERS = {
@@ -61,6 +63,14 @@ _PROVIDERS = {
         ChatMistralAI,
         {
             "api_key": os.environ.get("MISTRAL_API_KEY"),
+            "temperature": 0.7,
+            "max_tokens": 4096,
+        },
+    ),
+    "openrouter": (
+        ChatOpenRouter,
+        {
+            "api_key": os.environ.get("OPENROUTER_API_KEY"),
             "temperature": 0.7,
             "max_tokens": 4096,
         },

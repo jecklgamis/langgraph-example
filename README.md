@@ -69,13 +69,14 @@ Requires `server_api.py` running on port 8000. Vite proxies `/chat` to the backe
 
 | Variable             | Default              | Purpose                                           |
 |----------------------|----------------------|---------------------------------------------------|
-| `LLM_PROVIDER`       | `ollama`             | LLM backend (`ollama`, `openai`, `gemini`, `anthropic`, `groq`, `mistral`) |
+| `LLM_PROVIDER`       | `ollama`             | LLM backend (`ollama`, `openai`, `gemini`, `anthropic`, `groq`, `mistral`, `openrouter`) |
 | `LLM_MODEL`          | _(provider default)_ | Override model name (see defaults below)          |
 | `OPENAI_API_KEY`     | —                    | Required for `openai`; default model: `gpt-4.1-nano` |
 | `GEMINI_API_KEY`     | —                    | Required for `gemini`; default model: `gemini-2.5-flash` |
 | `ANTHROPIC_API_KEY`  | —                    | Required for `anthropic`; default model: `claude-sonnet-4-6` |
 | `GROQ_API_KEY`       | —                    | Required for `groq`; default model: `llama-3.3-70b-versatile` |
 | `MISTRAL_API_KEY`    | —                    | Required for `mistral`; default model: `mistral-large-latest` |
+| `OPENROUTER_API_KEY` | —                    | Required for `openrouter`; default model: `openrouter/auto`   |
 | `GUARDRAILS_ENABLED` | `false`              | Enable input/output guardrails                    |
 | `HUMAN_IN_LOOP`      | `false`              | Prompt user to confirm tool calls before exec     |
 | `LANGCHAIN_API_KEY`  | —                    | Enables LangSmith tracing when set                |
