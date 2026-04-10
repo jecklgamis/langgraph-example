@@ -1,15 +1,20 @@
 # langgraph-example
 
-A LangGraph agent with local function tools, guardrails, memory, and optional MCP server connections.
+A LangGraph agent with local function tools, guardrails, memory, human-in-the-loop, and optional MCP server connections.
 
 ## Features
 
 - Local tools: filesystem, network, web search, math, bash
 - Optional MCP server connections (math, perf)
 - Configurable LLM providers: Ollama (default), OpenAI, Gemini, OpenRouter
-- Conversation memory via LangGraph checkpointing
-- Guardrails: input validation, LLM-as-judge, output redaction, bash command denylist
-- HTTP API via FastAPI
+- Conversation memory via LangGraph checkpointing (SQLite)
+- Guardrails: input validation, LLM-as-judge, output PII redaction, bash command denylist
+- Human-in-the-loop tool call confirmation
+- Graceful error handling for LLM connection failures
+- HTTP API via FastAPI with streaming support
+- Playground UI at `/playground`
+- React frontend under `frontend/`
+- LangSmith tracing support
 
 ## Getting Started
 
@@ -41,7 +46,17 @@ curl -X POST http://localhost:8000/chat/stream \
   -d '{"message": "list files in /tmp", "thread_id": "session-1"}'
 ```
 
-Use the same `thread_id` across requests to maintain conversation history. Omit it to use the default thread.
+Use the same `thread_id` across requests to maintain conversation history.
+
+## React Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev   # http://localhost:5173
+```
+
+Requires `server_api.py` running on port 8000. Vite proxies `/chat` to the backend automatically.
 
 ## MCP Servers
 
@@ -52,9 +67,12 @@ Use the same `thread_id` across requests to maintain conversation history. Omit 
 
 ## Environment Variables
 
-| Variable             | Default  | Purpose                          |
-|----------------------|----------|----------------------------------|
-| `LLM_PROVIDER`       | `ollama` | LLM backend                      |
-| `OPENAI_API_KEY`     | —        | Required when using `openai`     |
-| `GEMINI_API_KEY`     | —        | Required when using `gemini`     |
-| `OPENROUTER_API_KEY` | —        | Required when using `openrouter` |
+| Variable             | Default   | Purpose                                        |
+|----------------------|-----------|------------------------------------------------|
+| `LLM_PROVIDER`       | `ollama`  | LLM backend                                    |
+| `OPENAI_API_KEY`     | —         | Required when using `openai`                   |
+| `GEMINI_API_KEY`     | —         | Required when using `gemini`                   |
+| `OPENROUTER_API_KEY` | —         | Required when using `openrouter`               |
+| `GUARDRAILS_ENABLED` | `false`   | Enable input/output guardrails                 |
+| `HUMAN_IN_LOOP`      | `false`   | Prompt user to confirm tool calls before exec  |
+| `LANGCHAIN_API_KEY`  | —         | Enables LangSmith tracing when set             |
