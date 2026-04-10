@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import os
 from contextlib import AsyncExitStack
 from typing import Optional
 
@@ -19,6 +18,7 @@ from functions.guardrails import GuardrailError, is_safe, validate_input, valida
 from functions.machine import get_current_user
 from llm_factory import create_llm
 from mcp_servers import mcp_servers
+from tracing import setup_tracing
 
 logger = logging.getLogger(__name__)
 
@@ -27,14 +27,6 @@ class AgentState(MessagesState):
     user_id: str
     session_metadata: Optional[dict]
 
-
-def setup_tracing():
-    if os.environ.get("LANGCHAIN_API_KEY"):
-        os.environ.setdefault("LANGCHAIN_TRACING_V2", "true")
-        os.environ.setdefault("LANGCHAIN_PROJECT", "langgraph-example")
-        logger.info("LangSmith tracing enabled (project: %s)", os.environ["LANGCHAIN_PROJECT"])
-    else:
-        logger.info("LangSmith tracing disabled (set LANGCHAIN_API_KEY to enable)")
 
 
 def build_app(tools: list, checkpointer=None, human_in_loop: bool = False):

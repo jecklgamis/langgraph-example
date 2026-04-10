@@ -8,7 +8,8 @@ from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from pydantic import BaseModel
 
-from agent import build_app, load_mcp_tools_from_servers, setup_tracing
+from agent import build_app, load_mcp_tools_from_servers
+from tracing import setup_tracing
 from functions.config import get_local_tools
 from functions.guardrails import GuardrailError, is_safe, validate_input, validate_output
 
