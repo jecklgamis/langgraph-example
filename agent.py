@@ -49,7 +49,7 @@ def build_app(tools: list, checkpointer=None, human_in_loop: bool = False):
             return {"messages": [await llm.ainvoke(state["messages"])]}
         except Exception as e:
             is_connection_error = (
-                isinstance(e, httpx.ConnectError) or "connection" in str(e).lower()
+                    isinstance(e, httpx.ConnectError) or "connection" in str(e).lower()
             )
             if is_connection_error:
                 logger.error("Could not connect to LLM: %s", e)
@@ -107,7 +107,7 @@ async def stream_tokens(app, inputs_or_command, config: dict) -> str:
     """Streams tokens from the model and returns the full response."""
     buffer = []
     async for event in app.astream_events(
-        inputs_or_command, config=config, version="v2"
+            inputs_or_command, config=config, version="v2"
     ):
         if event["event"] == "on_chat_model_stream":
             chunk = event["data"]["chunk"]
@@ -184,10 +184,10 @@ async def main():
 
 
 if __name__ == "__main__":
-
     def _sigint_handler(sig, frame):
         print("\nSee you next time!")
         sys.exit(0)
+
 
     signal.signal(signal.SIGINT, _sigint_handler)
     logging.basicConfig(level=logging.INFO)
