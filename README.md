@@ -73,7 +73,6 @@ Requires `server_api.py` running on port 8000. Vite proxies `/chat` to the backe
 | `LLM_MODEL`          | _(provider default)_ | Override the model name for the selected provider |
 | `OPENAI_API_KEY`     | —                    | Required when using `openai`                      |
 | `GEMINI_API_KEY`     | —                    | Required when using `gemini`                      |
-| `OPENROUTER_API_KEY` | —                    | Required when using `openrouter`                  |
 | `GUARDRAILS_ENABLED` | `false`              | Enable input/output guardrails                    |
 | `HUMAN_IN_LOOP`      | `false`              | Prompt user to confirm tool calls before exec     |
 | `LANGCHAIN_API_KEY`  | —                    | Enables LangSmith tracing when set                |
