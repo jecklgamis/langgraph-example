@@ -5,14 +5,10 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from langchain_core.messages import HumanMessage
-from langchain_mcp_adapters.tools import load_mcp_tools
-from mcp import ClientSession
-from mcp.client.streamable_http import streamable_http_client
 from pydantic import BaseModel
 
-from agent import build_app, is_reachable
+from agent import build_app, load_mcp_tools_from_servers
 from functions.config import get_local_tools
-from mcp_servers import mcp_servers
 
 logger = logging.getLogger(__name__)
 
@@ -23,23 +19,7 @@ _agent = None
 async def lifespan(app: FastAPI):
     global _agent
     async with AsyncExitStack() as stack:
-        mcp_tools = []
-        for mcp in mcp_servers:
-            url = mcp["url"]
-            if not await is_reachable(url):
-                logger.warning("MCP server not reachable, skipping: %s", url)
-                continue
-            try:
-                read, write, _ = await stack.enter_async_context(
-                    streamable_http_client(url)
-                )
-                session = await stack.enter_async_context(ClientSession(read, write))
-                await session.initialize()
-                mcp_tools.extend(await load_mcp_tools(session))
-                logger.info("Connected to MCP: %s", url)
-            except Exception as e:
-                logger.warning("Could not connect to %s: %s", url, e)
-
+        mcp_tools = await load_mcp_tools_from_servers(stack)
         _agent = build_app(get_local_tools() + mcp_tools)
         yield
 
@@ -76,4 +56,5 @@ async def chat_stream(request: ChatRequest):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
     uvicorn.run(app, host="0.0.0.0", port=8000)

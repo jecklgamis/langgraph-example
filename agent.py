@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import sys
 from contextlib import AsyncExitStack
 
 import httpx
@@ -20,16 +19,13 @@ logger = logging.getLogger(__name__)
 
 
 def build_app(tools: list):
-    llm = create_llm()
-    llm = llm.bind_tools(tools)
+    llm = create_llm().bind_tools(tools)
 
     async def call_model(state: MessagesState):
         return {"messages": [await llm.ainvoke(state["messages"])]}
 
     def should_call_tools(state: MessagesState):
-        if state["messages"][-1].tool_calls:
-            return "tools"
-        return END
+        return "tools" if state["messages"][-1].tool_calls else END
 
     workflow = StateGraph(MessagesState)
     workflow.add_node("agent", call_model)
@@ -40,21 +36,14 @@ def build_app(tools: list):
     return workflow.compile()
 
 
-async def is_reachable(url: str) -> bool:
-    try:
-        async with httpx.AsyncClient() as client:
-            await client.get(url, timeout=2)
-        return True
-    except Exception:
-        return False
-
-
-async def main():
-    async with AsyncExitStack() as stack:
-        mcp_tools = []
-        mcp_endpoints = [mcp["url"] for mcp in mcp_servers]
-        for url in mcp_endpoints:
-            if not await is_reachable(url):
+async def load_mcp_tools_from_servers(stack: AsyncExitStack) -> list:
+    tools = []
+    async with httpx.AsyncClient() as client:
+        for mcp in mcp_servers:
+            url = mcp["url"]
+            try:
+                await client.get(url, timeout=2)
+            except Exception:
                 logger.warning("MCP server not reachable, skipping: %s", url)
                 continue
             try:
@@ -63,13 +52,17 @@ async def main():
                 )
                 session = await stack.enter_async_context(ClientSession(read, write))
                 await session.initialize()
-                mcp_tools.extend(await load_mcp_tools(session))
+                tools.extend(await load_mcp_tools(session))
                 logger.info("Connected to MCP: %s", url)
             except Exception as e:
                 logger.warning("Could not connect to %s: %s", url, e)
+    return tools
 
-        tools = get_local_tools() + mcp_tools
-        app = build_app(tools)
+
+async def main():
+    async with AsyncExitStack() as stack:
+        mcp_tools = await load_mcp_tools_from_servers(stack)
+        app = build_app(get_local_tools() + mcp_tools)
 
         print("Type 'quit/exit/bye' to exit")
         while True:
@@ -81,7 +74,7 @@ async def main():
                 continue
             if user_input.lower() in ("quit", "exit", "bye"):
                 print("See ya!")
-                sys.exit(0)
+                break
             inputs = {"messages": [HumanMessage(content=user_input)]}
             async for output in app.astream(inputs):
                 for _, value in output.items():
@@ -92,6 +85,7 @@ async def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.WARNING)
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
     print(f"Welcome to langgraph-example {get_current_user()}!")
     asyncio.run(main())

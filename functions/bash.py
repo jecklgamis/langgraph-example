@@ -5,7 +5,37 @@ logger = logging.getLogger(__name__)
 
 
 def run_bash(command: str) -> str:
-    """Executes an arbitrary bash command and returns its output."""
+    """Executes an arbitrary bash command and returns its output.
+
+    Available commands include:
+    File and directory:
+      ls, cp, mv, rm, mkdir, rmdir, touch, ln, chmod, chown, chgrp, find, locate, stat, file, du, df
+
+    Text processing:
+      cat, echo, head, tail, grep, sed, awk, cut, sort, uniq, wc, tr, diff, patch, tee, xargs
+
+    Networking:
+      ping, curl, wget, ssh, scp, rsync, netstat, ifconfig, ip, nslookup, dig, traceroute, nc, telnet
+
+    Process management:
+      ps, top, kill, killall, pkill, pgrep, nice, nohup, jobs, bg, fg, wait
+
+    System info:
+      uname, hostname, uptime, whoami, id, date, cal, env, printenv, lsof, dmesg, sysctl
+
+    Archive and compression:
+      tar, gzip, gunzip, zip, unzip, bzip2, xz
+
+    Package management:
+      apt, apt-get, brew, pip, npm, yum, dnf
+
+    Disk and filesystem:
+      mount, umount, fdisk, mkfs, fsck, lsblk, blkid
+
+    Shell utilities:
+      echo, printf, read, export, source, alias, history, which, type, man, help, test, expr
+    """
+
     logger.info("Running bash command: %s", command)
     try:
         result = subprocess.run(
