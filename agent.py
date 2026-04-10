@@ -92,5 +92,6 @@ async def main():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.WARNING)
     print(f"Welcome to langgraph-example {get_current_user()}!")
     asyncio.run(main())

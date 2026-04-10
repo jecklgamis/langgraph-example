@@ -7,7 +7,7 @@ from os import listdir
 
 def read_file(file: str) -> str:
     """Reads a file and returns its content"""
-    logging.info(f"Reading file {file}")
+    logging.debug(f"Reading file {file}")
     try:
         with open(file, "rt") as f:
             return f.read()
@@ -17,7 +17,7 @@ def read_file(file: str) -> str:
 
 def list_files(directory: str) -> str:
     """List files in a given directory"""
-    logging.info(f"List files form {directory}")
+    logging.debug(f"List files form {directory}")
     try:
         return "\n".join(listdir(directory))
     except Exception as e:
@@ -28,7 +28,7 @@ def run_ifconfig(arguments: str) -> str:
     """The ifconfig utility is used to assign an address to a network interface and/or configure network interface parameters."""
     try:
         safe_args = " ".join(shlex.quote(arg) for arg in shlex.split(arguments))
-        logging.info(f"Running ifconfig with args : {safe_args}")
+        logging.debug(f"Running ifconfig with args : {safe_args}")
         return subprocess.run(
             f"ifconfig {safe_args}", shell=True, capture_output=True, text=True
         ).stdout
@@ -43,7 +43,7 @@ def run_netstat(arguments: str) -> str:
     specified protocol or address family.  The sixth form displays mbuf(9) statistics.  The seventh form displays routing table for the specified address family.  The eighth form displays routing statistics."""
     try:
         safe_args = " ".join(shlex.quote(arg) for arg in shlex.split(arguments))
-        logging.info(f"Running netstat with args : {safe_args}")
+        logging.debug(f"Running netstat with args : {safe_args}")
         return subprocess.run(
             f"netstat {safe_args}", shell=True, capture_output=True, text=True
         ).stdout
@@ -55,7 +55,7 @@ def run_df(arguments: str) -> str:
     """Run the Unix df command to get free disk space. arguments is a space-separated string of flags and paths, e.g. '-h /tmp'"""
     try:
         safe_args = " ".join(shlex.quote(arg) for arg in shlex.split(arguments))
-        logging.info(f"Running df with args : {safe_args}")
+        logging.debug(f"Running df with args : {safe_args}")
         return subprocess.run(
             f"df {safe_args}", shell=True, capture_output=True, text=True
         ).stdout
@@ -67,7 +67,7 @@ def run_du(arguments: str) -> str:
     """Run the Unix du command to display disk usage statistics"""
     try:
         safe_args = " ".join(shlex.quote(arg) for arg in shlex.split(arguments))
-        logging.info(f"Running du with args : {safe_args}")
+        logging.debug(f"Running du with args : {safe_args}")
         return subprocess.run(
             f"du {safe_args}", shell=True, capture_output=True, text=True
         ).stdout
@@ -77,11 +77,11 @@ def run_du(arguments: str) -> str:
 
 def get_current_user() -> str:
     """Returns the current logged-in user"""
-    logging.info("Getting currently logged user")
+    logging.debug("Getting currently logged user")
     return os.getenv("USER") or os.getenv("USERNAME") or os.popen("whoami").read().strip()
 
 
 def run_hostname() -> str:
     """Get the host of this machine"""
-    logging.info("Getting the host name of this machine")
+    logging.debug("Getting the host name of this machine")
     return subprocess.run("hostname", capture_output=True, text=True).stdout.strip()
