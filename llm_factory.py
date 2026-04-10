@@ -1,12 +1,18 @@
 import os
 
+from langchain_anthropic import ChatAnthropic
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
+from langchain_mistralai import ChatMistralAI
 from langchain_openai import ChatOpenAI
 
 _DEFAULT_MODELS = {
     "ollama": "llama3.2",
     "openai": "gpt-4.1-nano",
     "gemini": "gemini-2.5-flash",
+    "anthropic": "claude-sonnet-4-6",
+    "groq": "llama-3.3-70b-versatile",
+    "mistral": "mistral-large-latest",
 }
 
 _PROVIDERS = {
@@ -31,6 +37,30 @@ _PROVIDERS = {
         ChatGoogleGenerativeAI,
         {
             "api_key": os.environ.get("GEMINI_API_KEY"),
+            "temperature": 0.7,
+            "max_tokens": 4096,
+        },
+    ),
+    "anthropic": (
+        ChatAnthropic,
+        {
+            "api_key": os.environ.get("ANTHROPIC_API_KEY"),
+            "temperature": 0.7,
+            "max_tokens": 4096,
+        },
+    ),
+    "groq": (
+        ChatGroq,
+        {
+            "api_key": os.environ.get("GROQ_API_KEY"),
+            "temperature": 0.7,
+            "max_tokens": 4096,
+        },
+    ),
+    "mistral": (
+        ChatMistralAI,
+        {
+            "api_key": os.environ.get("MISTRAL_API_KEY"),
             "temperature": 0.7,
             "max_tokens": 4096,
         },
