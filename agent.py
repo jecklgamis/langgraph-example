@@ -190,7 +190,6 @@ if __name__ == "__main__":
 
 
     signal.signal(signal.SIGINT, _sigint_handler)
-    logging.basicConfig(level=logging.INFO)
-    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.basicConfig(level=logging.WARNING)
     print(f"Welcome to langgraph-example {get_current_user()}!")
     asyncio.run(main())

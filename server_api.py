@@ -234,6 +234,5 @@ async def playground():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.basicConfig(level=logging.WARNING)
     uvicorn.run(app, host="0.0.0.0", port=8000)
