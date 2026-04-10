@@ -5,52 +5,63 @@ from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
 from langchain_openrouter import ChatOpenRouter
 
+_DEFAULT_MODELS = {
+    "ollama": "llama3.2",
+    "ollama_native": "llama3.2",
+    "openai": "gpt-4.1-nano",
+    "gemini": "gemini-2.5-flash",
+    "openrouter": "openrouter/free",
+}
+
 _PROVIDERS = {
     "ollama": (
         ChatOpenAI,
         {
-            "model": "llama3.2",
             "base_url": "http://localhost:11434/v1",
             "api_key": "ollama",
+            "temperature": 0.7,
+            "max_tokens": 4096,
         },
     ),
     "ollama_native": (
         ChatOllama,
         {
-            "model": "llama3.2",
             "base_url": "http://localhost:11434",
+            "temperature": 0.7,
+            "max_tokens": 4096,
         },
     ),
     "openai": (
         ChatOpenAI,
         {
-            "model": "gpt-4.1-nano",
             "api_key": os.environ.get("OPENAI_API_KEY"),
+            "temperature": 0.7,
+            "max_tokens": 4096,
         },
     ),
     "gemini": (
         ChatGoogleGenerativeAI,
         {
-            "model": "gemini-2.5-flash",
             "api_key": os.environ.get("GEMINI_API_KEY"),
+            "temperature": 0.7,
+            "max_tokens": 4096,
         },
     ),
     "openrouter": (
         ChatOpenRouter,
         {
-            "model": "openrouter/free",
             "api_key": os.environ.get("OPENROUTER_API_KEY"),
+            "temperature": 0.7,
+            "max_tokens": 4096,
         },
     ),
 }
-
-_DEFAULTS = {"temperature": 0.7, "max_tokens": 4096}
 
 
 def create_llm(provider: str = None):
     provider = provider or os.environ.get("LLM_PROVIDER", "ollama")
     if provider not in _PROVIDERS:
         raise ValueError(f"Unknown provider: {provider}")
-    print(f"Using {provider} LLM provider")
+    model = os.environ.get("LLM_MODEL") or _DEFAULT_MODELS[provider]
     cls, kwargs = _PROVIDERS[provider]
-    return cls(**_DEFAULTS, **kwargs)
+    return cls(model=model, **kwargs)
