@@ -1,12 +1,10 @@
 import os
 
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
 
 _DEFAULT_MODELS = {
     "ollama": "llama3.2",
-    "ollama_native": "llama3.2",
     "openai": "gpt-4.1-nano",
     "gemini": "gemini-2.5-flash",
 }
@@ -17,14 +15,6 @@ _PROVIDERS = {
         {
             "base_url": "http://localhost:11434/v1",
             "api_key": "ollama",
-            "temperature": 0.7,
-            "max_tokens": 4096,
-        },
-    ),
-    "ollama_native": (
-        ChatOllama,
-        {
-            "base_url": "http://localhost:11434",
             "temperature": 0.7,
             "max_tokens": 4096,
         },
