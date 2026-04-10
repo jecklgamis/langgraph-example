@@ -52,10 +52,25 @@ Maps the `LLM_PROVIDER` env var to the correct LangChain chat model. Supported p
 - `functions/machine.py` — filesystem and network tools (`list_files`, `read_file`, `run_df`, `run_du`, `run_hostname`, `run_ifconfig`, `run_netstat`, `get_current_user`)
 - `functions/web.py` — `search` via DuckDuckGo
 - `functions/math.py` — `calculate_math_expression` using safe AST evaluation (no `eval`)
-- `functions/bash.py` — `run_bash` executes arbitrary shell commands with a 30s timeout
+- `functions/bash.py` — `run_bash` executes shell commands with a 30s timeout and a dangerous command denylist
 - `functions/config.py` — `get_local_tools()` returns the full list
 
 **Pattern for adding a local tool:** define a function in the appropriate module, add it to `get_local_tools()` in `functions/config.py`.
+
+### Guardrails (`functions/guardrails.py`)
+
+Applied on every input and output in both the REPL and the HTTP API:
+
+- `validate_input` — blocks prompt injection, adult content, and violence/weapons patterns; enforces max input length
+- `is_safe` — LLM-as-judge: a second LLM call classifies the input before the agent processes it
+- `validate_output` — redacts PII (SSN, email, phone number, credit card) from agent responses
+- `run_bash` denylist — blocks dangerous shell commands (`rm -rf /`, fork bomb, `shutdown`, etc.)
+
+### Memory (`MemorySaver`)
+
+The agent uses LangGraph's `MemorySaver` checkpointer to persist conversation history across turns. Each conversation is identified by a `thread_id`:
+- REPL: fixed `thread_id = "repl"` per session
+- HTTP API: caller-supplied `thread_id` in the request body (defaults to `"default"`)
 
 ### MCP Server (`mcp_servers/example/`)
 

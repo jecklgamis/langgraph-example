@@ -1,12 +1,14 @@
 # langgraph-example
 
-A LangGraph agent with local function tools and optional MCP server connections.
+A LangGraph agent with local function tools, guardrails, memory, and optional MCP server connections.
 
 ## Features
 
 - Local tools: filesystem, network, web search, math, bash
 - Optional MCP server connections (math, perf)
 - Configurable LLM providers: Ollama (default), OpenAI, Gemini, OpenRouter
+- Conversation memory via LangGraph checkpointing
+- Guardrails: input validation, LLM-as-judge, output redaction, bash command denylist
 - HTTP API via FastAPI
 
 ## Getting Started
@@ -28,14 +30,18 @@ LLM_PROVIDER=openai ./run-agent.sh
 ```bash
 python server_api.py
 
+# Single response
 curl -X POST http://localhost:8000/chat \
   -H "Content-Type: application/json" \
-  -d '{"message": "what is 2 + 2?"}'
+  -d '{"message": "what is 2 + 2?", "thread_id": "session-1"}'
 
+# Streaming response
 curl -X POST http://localhost:8000/chat/stream \
   -H "Content-Type: application/json" \
-  -d '{"message": "list files in /tmp"}'
+  -d '{"message": "list files in /tmp", "thread_id": "session-1"}'
 ```
+
+Use the same `thread_id` across requests to maintain conversation history. Omit it to use the default thread.
 
 ## MCP Servers
 
