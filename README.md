@@ -69,16 +69,8 @@ Requires `server_api.py` running on port 8000. Vite proxies `/chat` to the backe
 
 | Variable             | Default              | Purpose                                           |
 |----------------------|----------------------|---------------------------------------------------|
-| `LLM_PROVIDER`       | `ollama`             | LLM backend                                       |
-| `LLM_MODEL`          | _(provider default)_ | Override the model name for the selected provider |
-
-### Default models per provider
-
-| Provider  | Default Model       |
-|-----------|---------------------|
-| `ollama`  | `llama3.2`          |
-| `openai`  | `gpt-4.1-nano`      |
-| `gemini`  | `gemini-2.5-flash`  |
+| `LLM_PROVIDER`       | `ollama`             | LLM backend (`ollama`, `openai`, `gemini`)        |
+| `LLM_MODEL`          | `llama3.2`           | Model override; defaults: `llama3.2` / `gpt-4.1-nano` / `gemini-2.5-flash` |
 | `OPENAI_API_KEY`     | —                    | Required when using `openai`                      |
 | `GEMINI_API_KEY`     | —                    | Required when using `gemini`                      |
 | `GUARDRAILS_ENABLED` | `false`              | Enable input/output guardrails                    |
