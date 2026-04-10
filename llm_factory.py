@@ -17,36 +17,44 @@ LLM_CONFIGS = {
         "model": "llama3.2",
         "base_url": "http://localhost:11434/v1",
         "api_key": "ollama",
+        "temperature": 0.7,
+        "max_tokens": 4096,
     },
     # Ollama native mode (requires langchain-ollama package)
     "ollama_native": {
         "provider": "ollama_native",
         "model": "llama3.2",
         "base_url": "http://localhost:11434",
-        "api_key": "ollama",
+        "temperature": 0.7,
+        "num_predict": 4096,
     },
     "openai": {
         "provider": "openai",
         "model": "gpt-4.1-nano",
         "api_key": os.environ.get("OPENAI_API_KEY"),
+        "temperature": 0.7,
+        "max_tokens": 4096,
     },
     "gemini": {
         "provider": "google_genai",
         "model": "gemini-2.5-flash",
         "api_key": os.environ.get("GEMINI_API_KEY"),
+        "temperature": 0.7,
+        "max_tokens": 4096,
     },
     "openrouter": {
         "provider": "openrouter",
         "model": "openrouter/free",
         "api_key": os.environ.get("OPENROUTER_API_KEY"),
+        "temperature": 0.7,
+        "max_tokens": 4096,
     },
 }
 
 
-def create_llm(provider: str = None) -> any:
+def create_llm(provider: str = "ollama") -> any:
     config = {**LLM_CONFIGS[provider or get_default_provider()]}
     provider_type = config.pop("provider")
-
     if provider_type == "openai":
         return ChatOpenAI(**config)
     elif provider_type == "google_genai":

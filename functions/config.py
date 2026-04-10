@@ -9,12 +9,12 @@ from functions.machine import (
     get_current_user,
 )
 
-from functions.web import search_web
+from functions.web import search
 
 
 def get_local_tools():
     return [
-        search_web,
+        search,
         read_file,
         list_files,
         run_ifconfig,

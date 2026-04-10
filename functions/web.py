@@ -5,7 +5,7 @@ from ddgs import DDGS
 logger = logging.getLogger(__name__)
 
 
-def search_web(query: str) -> str:
+def search(query: str) -> str:
     """Performs a web search and returns the top results."""
     logger.info("Searching the web for: %s", query)
     try:

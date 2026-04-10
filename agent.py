@@ -71,11 +71,10 @@ async def main():
         tools = get_local_tools() + mcp_tools
         app = build_app(tools)
 
-        print(f"Welcome to langgraph-example {get_current_user()}!")
         print("Type 'quit/exit/bye' to exit")
         while True:
             try:
-                user_input = input("\nYou: ").strip()
+                user_input = input("> ").strip()
             except (EOFError, KeyboardInterrupt):
                 break
             if not user_input:
@@ -86,9 +85,12 @@ async def main():
             inputs = {"messages": [HumanMessage(content=user_input)]}
             async for output in app.astream(inputs):
                 for key, value in output.items():
-                    print(value["messages"][-1].content)
-                    print("---")
+                    content = value["messages"][-1].content
+                    if content:
+                        print(content)
+                        print("---")
 
 
 if __name__ == "__main__":
+    print(f"Welcome to langgraph-example {get_current_user()}!")
     asyncio.run(main())
