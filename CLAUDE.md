@@ -73,7 +73,6 @@ Both MCP servers also expose their tools as plain FastAPI REST routes (auto-regi
 | Variable             | Default                  | Purpose                          |
 |----------------------|--------------------------|----------------------------------|
 | `LLM_PROVIDER`       | `ollama`                 | LLM backend for the agent        |
-| `MCP_SERVER_URL`     | `http://localhost:58080`  | MCP server base URL             |
 | `OPENAI_API_KEY`     | —                        | Required when using `openai`     |
 | `GEMINI_API_KEY`     | —                        | Required when using `gemini`     |
 | `OPENROUTER_API_KEY` | —                        | Required when using `openrouter` |
