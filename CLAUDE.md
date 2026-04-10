@@ -16,7 +16,7 @@ LLM_PROVIDER=openai ./run-agent.sh
 python server_api.py
 
 # Run the MCP server (from mcp_servers/example/)
-./mcp_servers/example/run-server.sh
+./mcp_servers/example/run-mcp-server.sh
 
 # Run tests
 pytest -s

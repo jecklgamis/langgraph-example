@@ -61,7 +61,7 @@ Requires `server_api.py` running on port 8000. Vite proxies `/chat` to the backe
 ## MCP Servers
 
 ```bash
-./mcp_servers/example/run-server.sh
+./mcp_servers/example/run-mcp-server.sh
 ./run-agent.sh
 ```
 
