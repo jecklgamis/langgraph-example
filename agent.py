@@ -84,7 +84,7 @@ async def main():
                 sys.exit(0)
             inputs = {"messages": [HumanMessage(content=user_input)]}
             async for output in app.astream(inputs):
-                for key, value in output.items():
+                for _, value in output.items():
                     content = value["messages"][-1].content
                     if content:
                         print(content)

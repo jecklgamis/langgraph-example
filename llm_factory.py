@@ -6,10 +6,6 @@ from langchain_openai import ChatOpenAI
 from langchain_openrouter import ChatOpenRouter
 
 
-def get_default_provider():
-    return os.environ.get("LLM_PROVIDER", "ollama")
-
-
 LLM_CONFIGS = {
     # Ollama in OpenAI-compatible API mode (default path, no langchain_ollama dependency required)
     "ollama": {
@@ -53,7 +49,7 @@ LLM_CONFIGS = {
 
 
 def create_llm(provider: str = "ollama") -> any:
-    config = {**LLM_CONFIGS[provider or get_default_provider()]}
+    config = {**LLM_CONFIGS[provider]}
     provider_type = config.pop("provider")
     if provider_type == "openai":
         return ChatOpenAI(**config)
