@@ -78,7 +78,9 @@ def run_du(arguments: str) -> str:
 def get_current_user() -> str:
     """Returns the current logged-in user"""
     logging.debug("Getting currently logged user")
-    return os.getenv("USER") or os.getenv("USERNAME") or os.popen("whoami").read().strip()
+    return (
+        os.getenv("USER") or os.getenv("USERNAME") or os.popen("whoami").read().strip()
+    )
 
 
 def run_hostname() -> str:

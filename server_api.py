@@ -8,10 +8,16 @@ from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from pydantic import BaseModel
 
-from agent import build_app, load_mcp_tools_from_servers
-from tracing import setup_tracing
+from agent import build_app, human_in_loop_enabled, load_mcp_tools_from_servers
 from functions.config import get_local_tools
-from functions.guardrails import GuardrailError, is_safe, validate_input, validate_output
+from functions.guardrails import (
+    GuardrailError,
+    guardrails_enabled,
+    is_safe,
+    validate_input,
+    validate_output,
+)
+from tracing import setup_tracing
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +33,11 @@ async def lifespan(app: FastAPI):
             AsyncSqliteSaver.from_conn_string("checkpoints.db")
         )
         mcp_tools = await load_mcp_tools_from_servers(stack)
-        _agent = build_app(get_local_tools() + mcp_tools, checkpointer=checkpointer)
+        _agent = build_app(
+            get_local_tools() + mcp_tools,
+            checkpointer=checkpointer,
+            human_in_loop=human_in_loop_enabled(),
+        )
         yield
 
 
@@ -48,6 +58,8 @@ class ChatResponse(BaseModel):
 
 
 async def check_guardrails(message: str) -> None:
+    if not guardrails_enabled():
+        return
     try:
         validate_input(message)
     except GuardrailError as e:
@@ -67,8 +79,9 @@ async def chat(request: ChatRequest):
     }
     config = {"configurable": {"thread_id": request.thread_id}}
     result = await _agent.ainvoke(inputs, config=config)
+    response = result["messages"][-1].content
     return ChatResponse(
-        response=validate_output(result["messages"][-1].content),
+        response=validate_output(response) if guardrails_enabled() else response,
         thread_id=request.thread_id,
         user_id=request.user_id,
     )
@@ -87,11 +100,18 @@ async def chat_stream(request: ChatRequest):
         }
         config = {"configurable": {"thread_id": request.thread_id}}
         try:
-            async for event in _agent.astream_events(inputs, config=config, version="v2"):
+            async for event in _agent.astream_events(
+                inputs, config=config, version="v2"
+            ):
                 if event["event"] == "on_chat_model_stream":
                     chunk = event["data"]["chunk"]
                     if isinstance(chunk.content, str) and chunk.content:
-                        yield validate_output(chunk.content)
+                        content = chunk.content
+                        yield (
+                            validate_output(content)
+                            if guardrails_enabled()
+                            else content
+                        )
         except Exception as e:
             logger.error("Stream error: %s", e)
             yield f"\n[Error: {e}]"

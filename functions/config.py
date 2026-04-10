@@ -1,15 +1,14 @@
+from functions.bash import run_bash
 from functions.machine import (
-    run_hostname,
-    run_df,
-    run_du,
-    run_netstat,
-    run_ifconfig,
+    get_current_user,
     list_files,
     read_file,
-    get_current_user,
+    run_df,
+    run_du,
+    run_hostname,
+    run_ifconfig,
+    run_netstat,
 )
-
-from functions.bash import run_bash
 from functions.math import calculate_math_expression
 from functions.web import search
 

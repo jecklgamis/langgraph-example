@@ -5,7 +5,6 @@ from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
 from langchain_openrouter import ChatOpenRouter
 
-
 LLM_CONFIGS = {
     # Ollama in OpenAI-compatible API mode (default path, no langchain_ollama dependency required)
     "ollama": {
