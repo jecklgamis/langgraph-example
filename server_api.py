@@ -2,13 +2,14 @@ import logging
 from contextlib import AsyncExitStack, asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel
 
 from agent import build_app, load_mcp_tools_from_servers
 from functions.config import get_local_tools
+from functions.guardrails import GuardrailError, is_safe, validate_input, validate_output
 
 logger = logging.getLogger(__name__)
 
@@ -29,25 +30,39 @@ app = FastAPI(title="LangGraph Agent", lifespan=lifespan)
 
 class ChatRequest(BaseModel):
     message: str
+    thread_id: str = "default"
+
+
+async def check_guardrails(message: str) -> None:
+    try:
+        validate_input(message)
+    except GuardrailError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    if not await is_safe(message):
+        raise HTTPException(status_code=400, detail="Input flagged as unsafe.")
 
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
     """Returns the final agent reply."""
+    await check_guardrails(request.message)
     inputs = {"messages": [HumanMessage(content=request.message)]}
-    result = await _agent.ainvoke(inputs)
-    return {"response": result["messages"][-1].content}
+    config = {"configurable": {"thread_id": request.thread_id}}
+    result = await _agent.ainvoke(inputs, config=config)
+    return {"response": validate_output(result["messages"][-1].content)}
 
 
 @app.post("/chat/stream")
 async def chat_stream(request: ChatRequest):
     """Streams each agent step as it arrives."""
+    await check_guardrails(request.message)
 
     async def generate():
         inputs = {"messages": [HumanMessage(content=request.message)]}
-        async for output in _agent.astream(inputs):
+        config = {"configurable": {"thread_id": request.thread_id}}
+        async for output in _agent.astream(inputs, config=config):
             for value in output.values():
-                content = value["messages"][-1].content
+                content = validate_output(value["messages"][-1].content)
                 if content:
                     yield content + "\n"
 

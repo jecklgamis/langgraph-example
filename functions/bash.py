@@ -1,7 +1,20 @@
 import logging
+import re
 import subprocess
 
 logger = logging.getLogger(__name__)
+
+_BLOCKED_COMMANDS = [
+    r"rm\s+-rf\s+/",
+    r"\bmkfs\b",
+    r"\bdd\b.+\bif=",
+    r"\bshutdown\b",
+    r"\breboot\b",
+    r"\bhalt\b",
+    r":\(\)\s*\{.*\}",  # fork bomb
+    r"\bchmod\s+777\s+/",
+    r"\bsudo\s+rm\b",
+]
 
 
 def run_bash(command: str) -> str:
@@ -35,6 +48,11 @@ def run_bash(command: str) -> str:
     Shell utilities:
       echo, printf, read, export, source, alias, history, which, type, man, help, test, expr
     """
+
+    for pattern in _BLOCKED_COMMANDS:
+        if re.search(pattern, command, re.IGNORECASE):
+            logger.warning("Blocked dangerous bash command: %s", command)
+            return f"Blocked: command matches disallowed pattern '{pattern}'."
 
     logger.info("Running bash command: %s", command)
     try:
