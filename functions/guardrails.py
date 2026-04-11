@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def guardrails_enabled() -> bool:
-    return os.environ.get("GUARDRAILS_ENABLED", "false").lower() != "false"
+    return os.environ.get("GUARDRAILS_ENABLED", "true").lower() != "false"
 
 
 _BLOCKED_INPUT_PATTERNS = [
