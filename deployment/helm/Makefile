@@ -14,7 +14,7 @@ dry-run:
 	helm install --dry-run --debug $(APP_NAME) $(CHART_DIR)
 
 install: package
-	helm install $(APP_NAME) $(CHART_DIR) --set secrets.GEMINI_API_KEY=$(GEMINI_API_KEY) --set env.LLM_PROVIDER=gemini
+	@helm install $(APP_NAME) $(CHART_DIR) --set secrets.GEMINI_API_KEY=$(GEMINI_API_KEY) --set env.LLM_PROVIDER=gemini
 
 upgrade: package
 	helm upgrade $(APP_NAME) $(CHART_DIR)

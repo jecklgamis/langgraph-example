@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import os
 import signal
@@ -20,7 +21,6 @@ from functions.config import get_local_tools
 from functions.guardrails import (
     GuardrailError,
     guardrails_enabled,
-    is_safe,
     validate_input,
     validate_output,
 )
@@ -47,10 +47,7 @@ def build_app(tools: list, checkpointer=None, human_in_loop: bool = False):
         try:
             return {"messages": [await llm.ainvoke(state["messages"])]}
         except Exception as e:
-            is_connection_error = (
-                    isinstance(e, httpx.ConnectError) or "connection" in str(e).lower()
-            )
-            if is_connection_error:
+            if isinstance(e, httpx.ConnectError) or "connection" in str(e).lower():
                 logger.error("Could not connect to LLM: %s", e)
                 return {
                     "messages": [
@@ -102,6 +99,23 @@ async def load_mcp_tools_from_servers(stack: AsyncExitStack) -> list:
     return tools
 
 
+def _extract_text(content) -> str:
+    """Normalizes LangChain message content to a plain string.
+
+    Some providers (e.g. Anthropic) return content as a list of typed blocks
+    like [{"type": "text", "text": "..."}] instead of a bare string.
+    """
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return "".join(
+            block.get("text", "")
+            for block in content
+            if isinstance(block, dict) and block.get("type") == "text"
+        )
+    return ""
+
+
 async def stream_tokens(app, inputs_or_command, config: dict) -> str:
     """Streams tokens from the model and returns the full response."""
     buffer = []
@@ -109,10 +123,10 @@ async def stream_tokens(app, inputs_or_command, config: dict) -> str:
             inputs_or_command, config=config, version="v2"
     ):
         if event["event"] == "on_chat_model_stream":
-            chunk = event["data"]["chunk"]
-            if isinstance(chunk.content, str) and chunk.content:
-                print(chunk.content, end="", flush=True)
-                buffer.append(chunk.content)
+            text = _extract_text(event["data"]["chunk"].content)
+            if text:
+                print(text, end="", flush=True)
+                buffer.append(text)
     print()
     return validate_output("".join(buffer))
 
@@ -157,7 +171,6 @@ async def main():
 
         config = {"configurable": {"thread_id": "repl"}}
         inputs_base = {"user_id": os.getenv("USER", "user"), "session_metadata": {}}
-        print("Type 'quit/exit/bye' to exit")
         while True:
             try:
                 user_input = input("> ").strip()
@@ -174,9 +187,9 @@ async def main():
                 except GuardrailError as e:
                     print(f"Blocked: {e}")
                     continue
-                if not await is_safe(user_input):
-                    print("Blocked: input flagged as unsafe.")
-                    continue
+                # if not await is_safe(user_input):
+                #     print("Blocked: input flagged as unsafe.")
+                #     continue
             inputs = {**inputs_base, "messages": [HumanMessage(content=user_input)]}
             await stream_tokens(app, inputs, config)
             await handle_interrupt(app, config)
@@ -190,5 +203,5 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, _sigint_handler)
     logging.basicConfig(level=logging.WARNING)
-    print(f"Welcome to langgraph-example {os.getenv("USER", "user")}!")
+    print(f"Hello {os.getenv("USER", "user")}! What can I do for you today?")
     asyncio.run(main())

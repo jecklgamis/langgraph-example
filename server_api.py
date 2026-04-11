@@ -10,7 +10,7 @@ from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from pydantic import BaseModel
 
-from agent import build_app, human_in_loop_enabled, load_mcp_tools_from_servers
+from agent import build_app, human_in_loop_enabled, load_mcp_tools_from_servers, _extract_text
 from functions.config import get_local_tools
 from functions.guardrails import (
     GuardrailError,
@@ -88,7 +88,7 @@ async def chat(request: ChatRequest):
     }
     config = {"configurable": {"thread_id": request.thread_id}}
     result = await _agent.ainvoke(inputs, config=config)
-    response = result["messages"][-1].content
+    response = _extract_text(result["messages"][-1].content)
     return ChatResponse(
         response=validate_output(response) if guardrails_enabled() else response,
         thread_id=request.thread_id,
@@ -113,9 +113,8 @@ async def chat_stream(request: ChatRequest):
                 inputs, config=config, version="v2"
             ):
                 if event["event"] == "on_chat_model_stream":
-                    chunk = event["data"]["chunk"]
-                    if isinstance(chunk.content, str) and chunk.content:
-                        content = chunk.content
+                    content = _extract_text(event["data"]["chunk"].content)
+                    if content:
                         yield (
                             validate_output(content)
                             if guardrails_enabled()
