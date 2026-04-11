@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LangGraph Agent Playground</title>
+  <link rel="stylesheet" href="/static/playground.css">
+</head>
+<body>
+<div class="container">
+  <h1>LangGraph Agent Playground</h1>
+  <div class="config">
+    <input id="threadId" placeholder="Thread ID (default)" value="playground" disabled />
+    <input id="userId" placeholder="User ID (anonymous)" value="user" disabled />
+  </div>
+  <div class="messages" id="messages"></div>
+  <div class="input-row">
+    <textarea id="input" placeholder="Type a message and press Enter or click Send..." onkeydown="handleKey(event)"></textarea>
+    <button id="sendBtn" onclick="send()">Send</button>
+  </div>
+</div>
+<script src="/static/playground.js"></script>
+</body>
+</html>

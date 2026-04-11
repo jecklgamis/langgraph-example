@@ -2,8 +2,10 @@ import logging
 from contextlib import AsyncExitStack, asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from pydantic import BaseModel
@@ -42,6 +44,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="LangGraph Agent", lifespan=lifespan)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 
 class ChatRequest(BaseModel):
@@ -124,118 +128,10 @@ async def chat_stream(request: ChatRequest):
     return StreamingResponse(generate(), media_type="text/plain")
 
 
-@app.get("/playground", response_class=HTMLResponse)
-async def playground():
+@app.get("/playground")
+async def playground(request: Request):
     """Simple chat playground UI."""
-    return """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>LangGraph Agent Playground</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #f5f5f5; display: flex; justify-content: center; padding: 40px 16px; }
-    .container { width: 100%; max-width: 760px; }
-    h1 { font-size: 1.4rem; margin-bottom: 20px; color: #111; }
-    .config { display: flex; gap: 10px; margin-bottom: 14px; }
-    .config input { flex: 1; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.85rem; }
-    .messages { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; min-height: 400px; max-height: 540px; overflow-y: auto; margin-bottom: 14px; display: flex; flex-direction: column; gap: 12px; }
-    .msg { padding: 10px 14px; border-radius: 8px; max-width: 85%; line-height: 1.5; font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; }
-    .msg.user { background: #0070f3; color: #fff; align-self: flex-end; }
-    .msg.agent { background: #f0f0f0; color: #111; align-self: flex-start; }
-    .msg.error { background: #fee; color: #c00; align-self: flex-start; }
-    .input-row { display: flex; gap: 10px; }
-    textarea { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; resize: none; height: 60px; font-family: inherit; }
-    button { padding: 0 20px; background: #0070f3; color: #fff; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; }
-    button:disabled { background: #aaa; cursor: not-allowed; }
-    .thinking { color: #999; font-style: italic; font-size: 0.85rem; }
-  </style>
-</head>
-<body>
-<div class="container">
-  <h1>LangGraph Agent Playground</h1>
-  <div class="config">
-    <input id="threadId" placeholder="Thread ID (default)" value="playground" disabled />
-    <input id="userId" placeholder="User ID (anonymous)" value="user" disabled />
-  </div>
-  <div class="messages" id="messages"></div>
-  <div class="input-row">
-    <textarea id="input" placeholder="Type a message and press Enter or click Send..." onkeydown="handleKey(event)"></textarea>
-    <button id="sendBtn" onclick="send()">Send</button>
-  </div>
-</div>
-<script>
-  const messages = document.getElementById("messages");
-  const input = document.getElementById("input");
-  const sendBtn = document.getElementById("sendBtn");
-
-  function addMessage(role, text) {
-    const div = document.createElement("div");
-    div.className = "msg " + role;
-    div.textContent = text;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
-    return div;
-  }
-
-  function handleKey(e) {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
-  }
-
-  async function send() {
-    const message = input.value.trim();
-    if (!message) return;
-    input.value = "";
-    sendBtn.disabled = true;
-
-    addMessage("user", message);
-    const agentDiv = addMessage("agent", "");
-    agentDiv.classList.add("thinking");
-    agentDiv.textContent = "Thinking...";
-
-    try {
-      const res = await fetch("/chat/stream", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message,
-          thread_id: document.getElementById("threadId").value || "playground",
-          user_id: document.getElementById("userId").value || "user",
-        }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        agentDiv.classList.remove("thinking");
-        agentDiv.classList.add("error");
-        agentDiv.textContent = "Blocked: " + (err.detail || res.statusText);
-        return;
-      }
-
-      agentDiv.classList.remove("thinking");
-      agentDiv.textContent = "";
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        agentDiv.textContent += decoder.decode(value);
-        messages.scrollTop = messages.scrollHeight;
-      }
-      if (!agentDiv.textContent.trim()) agentDiv.textContent = "(no response)";
-    } catch (e) {
-      agentDiv.classList.add("error");
-      agentDiv.textContent = "Error: " + e.message;
-    } finally {
-      sendBtn.disabled = false;
-      input.focus();
-    }
-  }
-</script>
-</body>
-</html>
-"""
+    return templates.TemplateResponse("playground.html", {"request": request})
 
 
 if __name__ == "__main__":

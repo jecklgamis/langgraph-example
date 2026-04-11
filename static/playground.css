@@ -1,0 +1,16 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f5f5f5; display: flex; justify-content: center; padding: 40px 16px; }
+.container { width: 100%; max-width: 760px; }
+h1 { font-size: 1.4rem; margin-bottom: 20px; color: #111; }
+.config { display: flex; gap: 10px; margin-bottom: 14px; }
+.config input { flex: 1; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.85rem; }
+.messages { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; min-height: 400px; max-height: 540px; overflow-y: auto; margin-bottom: 14px; display: flex; flex-direction: column; gap: 12px; }
+.msg { padding: 10px 14px; border-radius: 8px; max-width: 85%; line-height: 1.5; font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; }
+.msg.user { background: #0070f3; color: #fff; align-self: flex-end; }
+.msg.agent { background: #f0f0f0; color: #111; align-self: flex-start; }
+.msg.error { background: #fee; color: #c00; align-self: flex-start; }
+.input-row { display: flex; gap: 10px; }
+textarea { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; resize: none; height: 60px; font-family: inherit; }
+button { padding: 0 20px; background: #0070f3; color: #fff; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; }
+button:disabled { background: #aaa; cursor: not-allowed; }
+.thinking { color: #999; font-style: italic; font-size: 0.85rem; }
