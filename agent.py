@@ -24,7 +24,6 @@ from functions.guardrails import (
     validate_input,
     validate_output,
 )
-from functions.machine import get_current_user
 from llm_factory import create_llm
 from mcp_servers import mcp_servers
 from tracing import setup_tracing
@@ -157,7 +156,7 @@ async def main():
         )
 
         config = {"configurable": {"thread_id": "repl"}}
-        inputs_base = {"user_id": get_current_user(), "session_metadata": {}}
+        inputs_base = {"user_id": os.getenv("USER", "user"), "session_metadata": {}}
         print("Type 'quit/exit/bye' to exit")
         while True:
             try:
@@ -191,5 +190,5 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, _sigint_handler)
     logging.basicConfig(level=logging.WARNING)
-    print(f"Welcome to langgraph-example {get_current_user()}!")
+    print(f"Welcome to langgraph-example {os.getenv("USER", "user")}!")
     asyncio.run(main())
