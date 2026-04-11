@@ -1,11 +1,11 @@
 IMAGE_NAME := langgraph-example:main
 
-.PHONY: all install test image run run-shell helm-install helm-uninstall clean
+.PHONY: all install-deps test image run run-shell helm-install-deps helm-uninstall-deps clean
 
-all: install test image helm-install
+all: install-deps test image helm-install-deps
 
-install:
-	pip install -r requirements.txt
+install-deps:
+	pip install-deps -r requirements.txt
 
 test:
 	pytest -s
@@ -19,11 +19,11 @@ run:
 run-shell:
 	docker run -it $(IMAGE_NAME) /bin/bash
 
-helm-install:
-	$(MAKE) -C deployment/helm install
+helm-install-deps:
+	$(MAKE) -C deployment/helm install-deps
 
-helm-uninstall:
-	$(MAKE) -C deployment/helm uninstall
+helm-uninstall-deps:
+	$(MAKE) -C deployment/helm uninstall-deps
 
 clean:
 	find . -name '__pycache__' -type d | xargs rm -rf
