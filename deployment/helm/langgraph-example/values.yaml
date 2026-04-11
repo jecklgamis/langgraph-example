@@ -2,28 +2,15 @@ replicaCount: 1
 
 image:
   repository: jecklgamis/langgraph-example
-  pullPolicy: Always
   tag: "main"
+  pullPolicy: Always
 
 imagePullSecrets:
   - name: dockerhub
-nameOverride: ""
-fullnameOverride: ""
-
-serviceAccount:
-  create: true
-  annotations: { }
-  name: ""
-
-podAnnotations: { }
-
-podSecurityContext: { }
-
-securityContext: { }
 
 service:
   type: ClusterIP
-  port: 58080
+  port: 8000
 
 ingress:
   enabled: true
@@ -31,7 +18,6 @@ ingress:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     cert-manager.io/issuer: "letsencrypt-prod"
-    nginx.ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
   hosts:
     - host: langgraph-example.jecklgamis.com
@@ -43,17 +29,30 @@ ingress:
       hosts:
         - langgraph-example.jecklgamis.com
 
-resources: { }
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
 
 autoscaling:
   enabled: false
   minReplicas: 1
   maxReplicas: 2
   targetCPUUtilizationPercentage: 80
-  targetMemoryUtilizationPercentage: 80
 
-nodeSelector: { }
+env:
+  LLM_PROVIDER: "ollama"
+  GUARDRAILS_ENABLED: "false"
+  HUMAN_IN_LOOP: "false"
 
-tolerations: [ ]
-
-affinity: { }
+secrets:
+  OPENAI_API_KEY: ""
+  GEMINI_API_KEY: ""
+  ANTHROPIC_API_KEY: ""
+  GROQ_API_KEY: ""
+  MISTRAL_API_KEY: ""
+  OPENROUTER_API_KEY: ""
+  LANGCHAIN_API_KEY: ""
