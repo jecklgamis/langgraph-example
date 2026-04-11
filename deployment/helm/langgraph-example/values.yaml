@@ -44,7 +44,7 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
 
 env:
-  LLM_PROVIDER: "ollama"
+  LLM_PROVIDER: "gemini"
   GUARDRAILS_ENABLED: "false"
   HUMAN_IN_LOOP: "false"
 
