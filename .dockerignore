@@ -7,5 +7,5 @@ __pycache__/
 .idea/
 .pytest_cache/
 frontend/
-mcp_servers/
+mcp_servers/example/
 *.sh
