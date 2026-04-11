@@ -30,7 +30,7 @@ app = FastAPI(
 async def root():
     """Root endpoint."""
     return {
-        "app_name": "mcp-server-example",
+        "app_name": "langgraph-example",
         "message": "It works on my machine!",
         "endpoints": {
             "docs": "/docs",

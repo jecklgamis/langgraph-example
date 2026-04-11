@@ -1,4 +1,4 @@
-IMAGE_NAME:=mcp-server-example:main
+IMAGE_NAME:=langgraph-example:main
 
 default:
 	@cat ./Makefile
