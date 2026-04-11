@@ -1,0 +1,6 @@
+apiVersion: v2
+name: langgraph-example
+description: LangGraph agent with FastAPI HTTP API
+type: application
+version: 0.1.0
+appVersion: "main"
