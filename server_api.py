@@ -156,8 +156,8 @@ async def playground():
 <div class="container">
   <h1>LangGraph Agent Playground</h1>
   <div class="config">
-    <input id="threadId" placeholder="Thread ID (default)" value="playground" />
-    <input id="userId" placeholder="User ID (anonymous)" value="user" />
+    <input id="threadId" placeholder="Thread ID (default)" value="playground" disabled />
+    <input id="userId" placeholder="User ID (anonymous)" value="user" disabled />
   </div>
   <div class="messages" id="messages"></div>
   <div class="input-row">
