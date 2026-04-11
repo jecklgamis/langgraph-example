@@ -8,4 +8,5 @@ __pycache__/
 .env
 frontend/node_modules/
 .langgraph_api/
+deployment/helm/*.tgz
 
