@@ -1,30 +1,60 @@
-const messages = document.getElementById("messages");
-const input = document.getElementById("input");
+const chatArea = document.getElementById("chatArea");
+const messagesEl = document.getElementById("messages");
+const emptyState = document.getElementById("emptyState");
+const textarea = document.getElementById("input");
 const sendBtn = document.getElementById("sendBtn");
 
+// Auto-resize textarea
+textarea.addEventListener("input", () => {
+  textarea.style.height = "24px";
+  textarea.style.height = Math.min(textarea.scrollHeight, 200) + "px";
+});
+
+function scrollToBottom() {
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
 function addMessage(role, text) {
-  const div = document.createElement("div");
-  div.className = "msg " + role;
-  div.textContent = text;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-  return div;
+  if (emptyState) emptyState.style.display = "none";
+
+  const msg = document.createElement("div");
+  msg.className = "msg " + role;
+
+  if (role === "agent") {
+    const label = document.createElement("div");
+    label.className = "msg-label";
+    label.innerHTML = '<div class="dot"></div> LangGraph Agent';
+    msg.appendChild(label);
+  }
+
+  const bubble = document.createElement("div");
+  bubble.className = "msg-bubble";
+  bubble.textContent = text;
+  msg.appendChild(bubble);
+
+  messagesEl.appendChild(msg);
+  scrollToBottom();
+  return bubble;
 }
 
 function handleKey(e) {
-  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    send();
+  }
 }
 
 async function send() {
-  const message = input.value.trim();
+  const message = textarea.value.trim();
   if (!message) return;
-  input.value = "";
+  textarea.value = "";
+  textarea.style.height = "24px";
   sendBtn.disabled = true;
 
   addMessage("user", message);
-  const agentDiv = addMessage("agent", "");
-  agentDiv.classList.add("thinking");
-  agentDiv.textContent = "Thinking...";
+  const agentBubble = addMessage("agent", "");
+  agentBubble.parentElement.classList.add("thinking");
+  agentBubble.textContent = "Thinking...";
 
   try {
     const res = await fetch("/chat/stream", {
@@ -32,35 +62,35 @@ async function send() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message,
-        thread_id: document.getElementById("threadId").value || "playground",
-        user_id: document.getElementById("userId").value || "user",
+        thread_id: "playground",
+        user_id: "user",
       }),
     });
 
+    agentBubble.parentElement.classList.remove("thinking");
+
     if (!res.ok) {
       const err = await res.json();
-      agentDiv.classList.remove("thinking");
-      agentDiv.classList.add("error");
-      agentDiv.textContent = "Blocked: " + (err.detail || res.statusText);
+      agentBubble.parentElement.classList.add("error");
+      agentBubble.textContent = "Blocked: " + (err.detail || res.statusText);
       return;
     }
 
-    agentDiv.classList.remove("thinking");
-    agentDiv.textContent = "";
+    agentBubble.textContent = "";
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      agentDiv.textContent += decoder.decode(value);
-      messages.scrollTop = messages.scrollHeight;
+      agentBubble.textContent += decoder.decode(value);
+      scrollToBottom();
     }
-    if (!agentDiv.textContent.trim()) agentDiv.textContent = "(no response)";
+    if (!agentBubble.textContent.trim()) agentBubble.textContent = "(no response)";
   } catch (e) {
-    agentDiv.classList.add("error");
-    agentDiv.textContent = "Error: " + e.message;
+    agentBubble.parentElement.classList.add("error");
+    agentBubble.textContent = "Error: " + e.message;
   } finally {
     sendBtn.disabled = false;
-    input.focus();
+    textarea.focus();
   }
 }
