@@ -1,6 +1,8 @@
 IMAGE_NAME := langgraph-example:main
 
-.PHONY: install test image run run-shell helm-install helm-uninstall clean
+.PHONY: all install test image run run-shell helm-install helm-uninstall clean
+
+all: install test image helm-install
 
 install:
 	pip install -r requirements.txt
