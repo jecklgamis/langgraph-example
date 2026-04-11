@@ -1,5 +1,6 @@
 APP_NAME := langgraph-example
 CHART_DIR := ./$(APP_NAME)
+GEMINI_API_KEY := $(shell printenv GEMINI_API_KEY)
 
 .PHONY: package lint dry-run install upgrade uninstall clean
 
@@ -13,7 +14,7 @@ dry-run:
 	helm install --dry-run --debug $(APP_NAME) $(CHART_DIR)
 
 install: package
-	helm install $(APP_NAME) $(CHART_DIR)
+	helm install $(APP_NAME) $(CHART_DIR) --set secrets.GEMINI_API_KEY=$(GEMINI_API_KEY) --set env.LLM_PROVIDER=gemini
 
 upgrade: package
 	helm upgrade $(APP_NAME) $(CHART_DIR)

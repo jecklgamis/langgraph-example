@@ -68,6 +68,11 @@ async def check_guardrails(message: str) -> None:
         raise HTTPException(status_code=400, detail="Input flagged as unsafe.")
 
 
+@app.get("/")
+async def root():
+    return {"message": "It works on my machine!", "name": "langgraph-example"}
+
+
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """Returns the final agent reply."""
