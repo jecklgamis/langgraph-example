@@ -22,11 +22,11 @@ from functions.guardrails import (
     GuardrailError,
     guardrails_enabled,
     validate_input,
-    validate_output,
+    validate_output, is_safe,
 )
 from llm_factory import create_llm
 from mcp_servers import mcp_servers
-from tracing import setup_tracing
+from tracing import setup_logging, setup_tracing
 
 logger = logging.getLogger(__name__)
 
@@ -187,9 +187,9 @@ async def main():
                 except GuardrailError as e:
                     print(f"Blocked: {e}")
                     continue
-                # if not await is_safe(user_input):
-                #     print("Blocked: input flagged as unsafe.")
-                #     continue
+                if not await is_safe(user_input):
+                    print("Blocked: input flagged as unsafe.")
+                    continue
             inputs = {**inputs_base, "messages": [HumanMessage(content=user_input)]}
             await stream_tokens(app, inputs, config)
             await handle_interrupt(app, config)
@@ -202,6 +202,6 @@ if __name__ == "__main__":
 
 
     signal.signal(signal.SIGINT, _sigint_handler)
-    logging.basicConfig(level=logging.WARNING)
+    setup_logging()
     print(f"Hello {os.getenv("USER", "user")}! What can I do for you today?")
     asyncio.run(main())

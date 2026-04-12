@@ -19,7 +19,7 @@ from functions.guardrails import (
     validate_input,
     validate_output,
 )
-from tracing import setup_tracing
+from tracing import setup_logging, setup_tracing
 
 logger = logging.getLogger(__name__)
 
@@ -134,5 +134,5 @@ async def playground(request: Request):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.WARNING)
+    setup_logging()
     uvicorn.run(app, host="0.0.0.0", port=8000)

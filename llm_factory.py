@@ -8,7 +8,7 @@ from langchain_openai import ChatOpenAI
 from langchain_openrouter import ChatOpenRouter
 
 _DEFAULT_MODELS = {
-    "ollama": "llama3.2",
+    "ollama": "qwen2.5:7b",
     "openai": "gpt-4.1-nano",
     "gemini": "gemini-2.5-flash",
     "anthropic": "claude-sonnet-4-6",
