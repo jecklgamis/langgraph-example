@@ -45,7 +45,7 @@ autoscaling:
 
 env:
   LLM_PROVIDER: "gemini"
-  GUARDRAILS_ENABLED: "false"
+  GUARDRAILS_ENABLED: "true"
   HUMAN_IN_LOOP: "false"
 
 secrets:
