@@ -231,7 +231,7 @@ def chat(
 
     signal.signal(signal.SIGINT, _sigint_handler)
     setup_logging()
-    console.print(f"Hello {os.getenv('USER', 'user')}! What can I do for you today?", style="bold")
+    console.print(f"Hello {os.getenv('USER', 'user')}! How can I assist you today?", style="bold")
     asyncio.run(main(thread_id=thread_id))
 
 
