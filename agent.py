@@ -14,7 +14,7 @@ from rich.console import Console
 console = Console()
 
 # ANSI colors for streaming output
-_BLUE = "\033[34m"
+_MAGENTA = "\033[35m"
 _GREEN = "\033[32m"
 _RESET = "\033[0m"
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
@@ -128,7 +128,7 @@ def _extract_text(content) -> str:
 async def stream_tokens(app, inputs_or_command, config: dict) -> str:
     """Streams tokens from the model and returns the full response."""
     buffer = []
-    print(_BLUE, end="", flush=True)
+    print(_MAGENTA, end="", flush=True)
     async for event in app.astream_events(
             inputs_or_command, config=config, version="v2"
     ):
