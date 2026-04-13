@@ -6,7 +6,7 @@ A LangGraph agent with local function tools, guardrails, memory, human-in-the-lo
 
 - Local tools: filesystem, network, web search, math, bash
 - Optional MCP server connections (math, perf)
-- Configurable LLM providers: Ollama (default), OpenAI, Gemini, Anthropic, Groq, Mistral, OpenRouter, Cohere, Together AI, Fireworks, DeepSeek, xAI
+- Configurable LLM providers: Gemini (default), Ollama, OpenAI, Anthropic, Groq, Mistral, OpenRouter, Cohere, Together AI, Fireworks, DeepSeek, xAI
 - Conversation memory via LangGraph checkpointing (SQLite)
 - Guardrails: input validation, LLM-as-judge, output PII redaction, bash command denylist
 - Human-in-the-loop tool call confirmation
@@ -33,7 +33,7 @@ export GEMINI_API_KEY=your-api-key
 ## HTTP API
 
 ```bash
-uv run server_api.py
+./run-server-api.sh
 
 # Single response
 curl -X POST http://localhost:8000/chat \
@@ -51,9 +51,7 @@ Use the same `thread_id` across requests to maintain conversation history.
 ## React Frontend
 
 ```bash
-cd frontend
-npm install
-npm run dev   # http://localhost:5173
+./frontend/run-frontend.sh   # http://localhost:5173
 ```
 
 Requires `server_api.py` running on port 8000. Vite proxies `/chat` to the backend automatically.
@@ -69,7 +67,7 @@ Requires `server_api.py` running on port 8000. Vite proxies `/chat` to the backe
 
 | Variable             | Default              | Purpose                                           |
 |----------------------|----------------------|---------------------------------------------------|
-| `LLM_PROVIDER`       | `ollama`             | LLM backend (see providers below) |
+| `LLM_PROVIDER`       | `gemini`             | LLM backend (see providers below) |
 | `LLM_MODEL`          | _(provider default)_ | Override model name (see defaults below)          |
 | `OPENAI_API_KEY`     | —                    | Required for `openai`; default model: `gpt-4.1-nano` |
 | `GEMINI_API_KEY`     | —                    | Required for `gemini`; default model: `gemini-2.5-flash` |

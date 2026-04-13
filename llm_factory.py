@@ -133,5 +133,7 @@ def create_llm(provider: str = None):
     if provider not in _PROVIDERS:
         raise ValueError(f"Unknown provider: {provider}")
     model = os.environ.get("LLM_MODEL") or _DEFAULT_MODELS[provider]
+    print(f"Creating LLM, provider={provider}, model={model}")
     cls, kwargs = _PROVIDERS[provider]
     return cls(model=model, **kwargs)
+
