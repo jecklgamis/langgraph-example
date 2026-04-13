@@ -8,6 +8,7 @@ from contextlib import AsyncExitStack
 from typing import Optional
 
 import httpx
+import typer
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_mcp_adapters.tools import load_mcp_tools
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
@@ -156,7 +157,7 @@ async def handle_interrupt(app, config: dict) -> None:
         state = await app.aget_state(config)
 
 
-async def main():
+async def main(thread_id: str):
     setup_tracing()
     async with AsyncExitStack() as stack:
         checkpointer = await stack.enter_async_context(
@@ -169,7 +170,7 @@ async def main():
             human_in_loop=human_in_loop_enabled(),
         )
 
-        config = {"configurable": {"thread_id": "repl"}}
+        config = {"configurable": {"thread_id": thread_id}}
         inputs_base = {"user_id": os.getenv("USER", "user"), "session_metadata": {}}
         while True:
             try:
@@ -195,13 +196,35 @@ async def main():
             await handle_interrupt(app, config)
 
 
-if __name__ == "__main__":
+cli = typer.Typer()
+
+
+@cli.command()
+def chat(
+    provider: Optional[str] = typer.Option(None, "--provider", "-p", help="LLM provider (ollama, openai, gemini, anthropic, groq, mistral, openrouter, cohere, together, fireworks, deepseek, xai)"),
+    model: Optional[str] = typer.Option(None, "--model", "-m", help="Override the default model for the selected provider"),
+    thread_id: str = typer.Option("repl", "--thread-id", "-t", help="Conversation thread ID for memory persistence"),
+    guardrails: bool = typer.Option(True, "--guardrails/--no-guardrails", help="Enable or disable input/output guardrails"),
+    human_in_loop: bool = typer.Option(False, "--human-in-loop", "-H", help="Prompt for confirmation before each tool call"),
+):
+    if provider:
+        os.environ["LLM_PROVIDER"] = provider
+    if model:
+        os.environ["LLM_MODEL"] = model
+    if not guardrails:
+        os.environ["GUARDRAILS_ENABLED"] = "false"
+    if human_in_loop:
+        os.environ["HUMAN_IN_LOOP"] = "true"
+
     def _sigint_handler(sig, frame):
         print("\nSee you next time!")
         sys.exit(0)
 
-
     signal.signal(signal.SIGINT, _sigint_handler)
     setup_logging()
-    print(f"Hello {os.getenv("USER", "user")}! What can I do for you today?")
-    asyncio.run(main())
+    print(f"Hello {os.getenv('USER', 'user')}! What can I do for you today?")
+    asyncio.run(main(thread_id=thread_id))
+
+
+if __name__ == "__main__":
+    cli()

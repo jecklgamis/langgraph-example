@@ -18,4 +18,6 @@ langchain-mcp-adapters==0.2.2
 mcp==1.27.0
 ddgs==9.13.0
 langgraph-checkpoint-sqlite==3.0.3
+typer
+rich
 pytest==9.0.3
