@@ -45,7 +45,7 @@ The agent and MCP sessions are initialized once at startup via FastAPI lifespan 
 
 ### LLM Factory (`llm_factory.py`)
 
-Maps the `LLM_PROVIDER` env var to the correct LangChain chat model. Supported providers: `ollama` (default, OpenAI-compat mode), `openai`, `gemini`, `anthropic`, `groq`, `mistral`, `openrouter`. Each provider has sensible defaults for `temperature` and `max_tokens`. The model name can be overridden via `LLM_MODEL`. `create_llm()` logs the resolved provider and model name to stdout on every call.
+Maps the `LLM_PROVIDER` env var to the correct LangChain chat model. Supported providers: `ollama` (default, OpenAI-compat mode), `openai`, `gemini`, `anthropic`, `groq`, `mistral`, `openrouter`, `cohere`, `together`, `fireworks`, `deepseek` (OpenAI-compat), `xai` (OpenAI-compat). Each provider has sensible defaults for `temperature` and `max_tokens`. The model name can be overridden via `LLM_MODEL`. `create_llm()` logs the resolved provider and model name to stdout on every call.
 
 Default models per provider are defined in `_DEFAULT_MODELS`. Override with `LLM_MODEL` at runtime:
 ```bash
@@ -101,6 +101,11 @@ Both MCP servers also expose their tools as plain FastAPI REST routes (auto-regi
 | `GROQ_API_KEY`       | —                        | Required when using `groq`                    |
 | `MISTRAL_API_KEY`    | —                        | Required when using `mistral`                 |
 | `OPENROUTER_API_KEY` | —                        | Required when using `openrouter`              |
+| `COHERE_API_KEY`     | —                        | Required when using `cohere`                  |
+| `TOGETHER_API_KEY`   | —                        | Required when using `together`                |
+| `FIREWORKS_API_KEY`  | —                        | Required when using `fireworks`               |
+| `DEEPSEEK_API_KEY`   | —                        | Required when using `deepseek`                |
+| `XAI_API_KEY`        | —                        | Required when using `xai`                     |
 | `GUARDRAILS_ENABLED` | `true`                   | Enable input/output guardrails                |
 | `HUMAN_IN_LOOP`      | `false`                  | Prompt user to confirm tool calls before exec |
 | `LANGCHAIN_API_KEY`  | —                        | Enables LangSmith tracing when set            |
