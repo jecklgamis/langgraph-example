@@ -11,7 +11,7 @@ from langchain_openrouter import ChatOpenRouter
 from langchain_together import ChatTogether
 
 _DEFAULT_MODELS = {
-    "ollama": "qwen2.5:7b",
+    "ollama": "llama3.2",
     "openai": "gpt-4.1-nano",
     "gemini": "gemini-2.5-flash",
     "anthropic": "claude-sonnet-4-6",
