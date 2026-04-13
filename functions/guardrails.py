@@ -8,6 +8,8 @@ from llm_factory import create_llm
 
 logger = logging.getLogger(__name__)
 
+_llm = create_llm()
+
 
 def guardrails_enabled() -> bool:
     return os.environ.get("GUARDRAILS_ENABLED", "true").lower() != "false"
@@ -72,8 +74,7 @@ def validate_output(response: str) -> str:
 
 async def is_safe(message: str) -> bool:
     """Uses the LLM to judge whether the input is safe to process."""
-    llm = create_llm()
-    result = await llm.ainvoke(
+    result = await _llm.ainvoke(
         [
             SystemMessage(
                 content=(
