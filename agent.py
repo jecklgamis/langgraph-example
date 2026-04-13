@@ -227,7 +227,7 @@ def chat(
         os.environ["HUMAN_IN_LOOP"] = "true"
 
     def _sigint_handler(sig, frame):
-        print("\nSee you next time!")
+        print("\nSee ya!")
         sys.exit(0)
 
     signal.signal(signal.SIGINT, _sigint_handler)
