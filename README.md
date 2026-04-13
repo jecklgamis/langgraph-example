@@ -6,7 +6,7 @@ A LangGraph agent with local function tools, guardrails, memory, human-in-the-lo
 
 - Local tools: filesystem, network, web search, math, bash
 - Optional MCP server connections (math, perf)
-- Configurable LLM providers: Ollama (default), OpenAI, Gemini
+- Configurable LLM providers: Ollama (default), OpenAI, Gemini, Anthropic, Groq, Mistral, OpenRouter
 - Conversation memory via LangGraph checkpointing (SQLite)
 - Guardrails: input validation, LLM-as-judge, output PII redaction, bash command denylist
 - Human-in-the-loop tool call confirmation
