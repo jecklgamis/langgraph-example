@@ -45,7 +45,7 @@ The agent and MCP sessions are initialized once at startup via FastAPI lifespan 
 
 ### LLM Factory (`llm_factory.py`)
 
-Maps the `LLM_PROVIDER` env var to the correct LangChain chat model. Supported providers: `gemini` (default), `ollama` (OpenAI-compat mode), `openai`, `anthropic`, `groq`, `mistral`, `openrouter`, `cohere`, `together`, `fireworks`, `deepseek` (OpenAI-compat), `xai` (OpenAI-compat). Each provider has sensible defaults for `temperature` and `max_tokens`. The model name can be overridden via `LLM_MODEL`.
+Maps the `LLM_PROVIDER` env var to the correct LangChain chat model. Supported providers: `ollama` (default, OpenAI-compat mode), `openai`, `gemini`, `anthropic`, `groq`, `mistral`, `openrouter`, `cohere`, `together`, `fireworks`, `deepseek` (OpenAI-compat), `xai` (OpenAI-compat). Each provider has sensible defaults for `temperature` and `max_tokens`. The model name can be overridden via `LLM_MODEL`.
 
 Default models per provider are defined in `_DEFAULT_MODELS`. Override with `LLM_MODEL` at runtime:
 ```bash
@@ -93,7 +93,7 @@ Both MCP servers also expose their tools as plain FastAPI REST routes (auto-regi
 
 | Variable             | Default                  | Purpose                                       |
 |----------------------|--------------------------|-----------------------------------------------|
-| `LLM_PROVIDER`       | `gemini`                 | LLM backend for the agent                     |
+| `LLM_PROVIDER`       | `ollama`                 | LLM backend for the agent                     |
 | `LLM_MODEL`          | _(provider default)_     | Override the model name for the selected provider |
 | `OPENAI_API_KEY`     | —                        | Required when using `openai`                  |
 | `GEMINI_API_KEY`     | —                        | Required when using `gemini`                  |

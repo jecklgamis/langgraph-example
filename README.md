@@ -6,7 +6,7 @@ A LangGraph agent with local function tools, guardrails, memory, human-in-the-lo
 
 - Local tools: filesystem, network, web search, math, bash
 - Optional MCP server connections (math, perf)
-- Configurable LLM providers: Gemini (default), Ollama, OpenAI, Anthropic, Groq, Mistral, OpenRouter, Cohere, Together AI, Fireworks, DeepSeek, xAI
+- Configurable LLM providers: Ollama (default), OpenAI, Gemini, Anthropic, Groq, Mistral, OpenRouter, Cohere, Together AI, Fireworks, DeepSeek, xAI
 - Conversation memory via LangGraph checkpointing (SQLite)
 - Guardrails: input validation, LLM-as-judge, output PII redaction, bash command denylist
 - Human-in-the-loop tool call confirmation
@@ -67,7 +67,7 @@ Requires `server_api.py` running on port 8000. Vite proxies `/chat` to the backe
 
 | Variable             | Default              | Purpose                                           |
 |----------------------|----------------------|---------------------------------------------------|
-| `LLM_PROVIDER`       | `gemini`             | LLM backend (see providers below) |
+| `LLM_PROVIDER`       | `ollama`             | LLM backend (see providers below) |
 | `LLM_MODEL`          | _(provider default)_ | Override model name (see defaults below)          |
 | `OPENAI_API_KEY`     | —                    | Required for `openai`; default model: `gpt-4.1-nano` |
 | `GEMINI_API_KEY`     | —                    | Required for `gemini`; default model: `gemini-2.5-flash` |
