@@ -9,8 +9,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 uv sync
 
 # Run the agent (interactive REPL)
-./run-agent.sh
-LLM_PROVIDER=openai ./run-agent.sh
+./run-cli-agent.sh
+LLM_PROVIDER=openai ./run-cli-agent.sh
 
 # Run the agent as an HTTP API
 ./run-server-api.sh
@@ -49,7 +49,7 @@ Maps the `LLM_PROVIDER` env var to the correct LangChain chat model. Supported p
 
 Default models per provider are defined in `_DEFAULT_MODELS`. Override with `LLM_MODEL` at runtime:
 ```bash
-LLM_MODEL=llama3.1 ./run-agent.sh
+LLM_MODEL=llama3.1 ./run-cli-agent.sh
 LLM_PROVIDER=openai LLM_MODEL=gpt-4o python agent.py
 ```
 

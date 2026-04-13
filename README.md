@@ -20,14 +20,14 @@ A LangGraph agent with local function tools, guardrails, memory, human-in-the-lo
 
 ```bash
 uv sync
-./run-agent.sh
+./run-cli-agent.sh
 ```
 
 For a different LLM provider:
 
 ```bash
 export GEMINI_API_KEY=your-api-key
-./run-agent.sh --provider gemini
+./run-cli-agent.sh --provider gemini
 ```
 
 ## HTTP API
@@ -60,7 +60,7 @@ Requires `server_api.py` running on port 8000. Vite proxies `/chat` to the backe
 
 ```bash
 ./mcp_servers/example/run-mcp-server.sh
-./run-agent.sh
+./run-cli-agent.sh
 ```
 
 ## Environment Variables
