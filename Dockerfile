@@ -1,6 +1,6 @@
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
-LABEL maintainer="jecklgamis"
+LABEL maintainer="Jerrico Gamis <jecklgamis@gmail.com>"
 
 WORKDIR /app
 

@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
         yield
 
 
-app = FastAPI(title="LangGraph Agent", lifespan=lifespan)
+app = FastAPI(title="langgraph-example", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
