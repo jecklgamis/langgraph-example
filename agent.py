@@ -9,6 +9,14 @@ from typing import Optional
 
 import httpx
 import typer
+from rich.console import Console
+
+console = Console()
+
+# ANSI colors for streaming output
+_BLUE = "\033[34m"
+_GREEN = "\033[32m"
+_RESET = "\033[0m"
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_mcp_adapters.tools import load_mcp_tools
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
@@ -120,6 +128,7 @@ def _extract_text(content) -> str:
 async def stream_tokens(app, inputs_or_command, config: dict) -> str:
     """Streams tokens from the model and returns the full response."""
     buffer = []
+    print(_BLUE, end="", flush=True)
     async for event in app.astream_events(
             inputs_or_command, config=config, version="v2"
     ):
@@ -128,7 +137,7 @@ async def stream_tokens(app, inputs_or_command, config: dict) -> str:
             if text:
                 print(text, end="", flush=True)
                 buffer.append(text)
-    print()
+    print(_RESET)
     return validate_output("".join(buffer))
 
 
@@ -137,9 +146,9 @@ async def handle_interrupt(app, config: dict) -> None:
     state = await app.aget_state(config)
     while state.next:
         last_msg = state.values["messages"][-1]
-        print("\n[Pending tool calls]")
+        console.print("\n[Pending tool calls]", style="yellow bold")
         for tc in last_msg.tool_calls:
-            print(f"  {tc['name']}({tc['args']})")
+            console.print(f"  {tc['name']}({tc['args']})", style="yellow")
         confirm = input("Allow? [y/N] ").strip().lower()
         if confirm == "y":
             await stream_tokens(app, Command(resume=True), config)
@@ -174,22 +183,22 @@ async def main(thread_id: str):
         inputs_base = {"user_id": os.getenv("USER", "user"), "session_metadata": {}}
         while True:
             try:
-                user_input = input("> ").strip()
+                user_input = input(f"{_GREEN}>{_RESET} ").strip()
             except EOFError:
                 break
             if not user_input:
                 continue
             if user_input.lower() in ("quit", "exit", "bye"):
-                print("See ya!")
+                console.print("See ya!", style="bold")
                 break
             if guardrails_enabled():
                 try:
                     validate_input(user_input)
                 except GuardrailError as e:
-                    print(f"Blocked: {e}")
+                    console.print(f"Blocked: {e}", style="red")
                     continue
                 if not await is_safe(user_input):
-                    print("Blocked: input flagged as unsafe.")
+                    console.print("Blocked: input flagged as unsafe.", style="red")
                     continue
             inputs = {**inputs_base, "messages": [HumanMessage(content=user_input)]}
             await stream_tokens(app, inputs, config)
@@ -222,7 +231,7 @@ def chat(
 
     signal.signal(signal.SIGINT, _sigint_handler)
     setup_logging()
-    print(f"Hello {os.getenv('USER', 'user')}! What can I do for you today?")
+    console.print(f"Hello {os.getenv('USER', 'user')}! What can I do for you today?", style="bold")
     asyncio.run(main(thread_id=thread_id))
 
 
