@@ -45,7 +45,7 @@ The agent and MCP sessions are initialized once at startup via FastAPI lifespan 
 
 ### LLM Factory (`llm_factory.py`)
 
-Maps the `LLM_PROVIDER` env var to the correct LangChain chat model. Supported providers: `ollama` (default, OpenAI-compat mode), `openai`, `gemini`, `anthropic`, `groq`, `mistral`, `openrouter`, `cohere`, `together`, `fireworks`, `deepseek` (OpenAI-compat), `xai` (OpenAI-compat). Each provider has sensible defaults for `temperature` and `max_tokens`. The model name can be overridden via `LLM_MODEL`. `create_llm()` logs the resolved provider and model name to stdout on every call.
+Maps the `LLM_PROVIDER` env var to the correct LangChain chat model. Supported providers: `ollama` (default, OpenAI-compat mode), `openai`, `gemini`, `anthropic`, `groq`, `mistral`, `openrouter`, `cohere`, `together`, `fireworks`, `deepseek` (OpenAI-compat), `xai` (OpenAI-compat). Each provider has sensible defaults for `temperature` and `max_tokens`. The model name can be overridden via `LLM_MODEL`.
 
 Default models per provider are defined in `_DEFAULT_MODELS`. Override with `LLM_MODEL` at runtime:
 ```bash
