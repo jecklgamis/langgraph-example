@@ -7,6 +7,7 @@ __pycache__/
 *.db-wal
 .env
 frontend/node_modules/
+frontend/dist/
 .langgraph_api/
 deployment/helm/*.tgz
 *.log

@@ -129,7 +129,7 @@ async def chat_stream(request: ChatRequest):
 @app.get("/playground")
 async def playground(request: Request):
     """Simple chat playground UI."""
-    return templates.TemplateResponse("playground.html", {"request": request})
+    return templates.TemplateResponse(request, "playground.html")
 
 
 if __name__ == "__main__":

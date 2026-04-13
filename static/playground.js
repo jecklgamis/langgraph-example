@@ -23,7 +23,7 @@ function addMessage(role, text) {
   if (role === "agent") {
     const label = document.createElement("div");
     label.className = "msg-label";
-    label.innerHTML = '<div class="dot"></div> LangGraph Agent';
+    label.innerHTML = '<div class="dot"></div> langgraph-example';
     msg.appendChild(label);
   }
 

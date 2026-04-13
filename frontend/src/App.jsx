@@ -46,6 +46,7 @@ const S = {
     display: "flex",
     flexDirection: "column",
     gap: 24,
+    flex: 1,
   },
   emptyState: {
     display: "flex",
@@ -150,10 +151,12 @@ function Message({ role, text }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.8rem", color: "#9aa0a6" }}>
-        <div style={{ width: 16, height: 16, borderRadius: "50%", background: "linear-gradient(135deg, #4285f4, #9b72cb)", flexShrink: 0 }} />
-        LangGraph Agent
-      </div>
+      {role !== "error" && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.8rem", color: "#9aa0a6" }}>
+          <div style={{ width: 16, height: 16, borderRadius: "50%", background: "linear-gradient(135deg, #4285f4, #9b72cb)", flexShrink: 0 }} />
+          langgraph-example
+        </div>
+      )}
       <div style={{
         color: role === "error" ? "#f28b82" : role === "thinking" ? "#9aa0a6" : "#e3e3e3",
         background: role === "error" ? "#3c1a1a" : "transparent",
@@ -197,10 +200,11 @@ export default function App() {
     if (textareaRef.current) textareaRef.current.style.height = "24px";
     setLoading(true);
 
-    const agentId = Date.now() + 1;
+    const userId = Date.now();
+    const agentId = userId + 1;
     setMessages((prev) => [
       ...prev,
-      { role: "user", text: message, id: Date.now() },
+      { role: "user", text: message, id: userId },
       { role: "thinking", text: "", id: agentId },
     ]);
 
@@ -267,7 +271,7 @@ export default function App() {
     <div style={S.app}>
       <div style={S.header}>
         <div style={S.headerLogo} />
-        <h1 style={S.headerTitle}>LangGraph Agent</h1>
+        <h1 style={S.headerTitle}>langgraph-example</h1>
       </div>
 
       <div style={S.chatArea} ref={chatAreaRef}>
@@ -307,7 +311,7 @@ export default function App() {
               </svg>
             </button>
           </div>
-          <div style={S.inputFooter}>LangGraph Agent can make mistakes. Verify important info.</div>
+          <div style={S.inputFooter}>langgraph-example can make mistakes. Verify important info.</div>
         </div>
       </div>
     </div>

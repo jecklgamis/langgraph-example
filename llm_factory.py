@@ -129,7 +129,7 @@ _PROVIDERS = {
 
 
 def create_llm(provider: str = None):
-    provider = provider or os.environ.get("LLM_PROVIDER", "ollama")
+    provider = provider or os.environ.get("LLM_PROVIDER", "gemini")
     if provider not in _PROVIDERS:
         raise ValueError(f"Unknown provider: {provider}")
     model = os.environ.get("LLM_MODEL") or _DEFAULT_MODELS[provider]
