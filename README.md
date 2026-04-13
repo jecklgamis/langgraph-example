@@ -26,8 +26,8 @@ pip install -r requirements.txt
 For a different LLM provider:
 
 ```bash
-export OPENAI_API_KEY=your-api-key
-LLM_PROVIDER=openai ./run-agent.sh
+export GEMINI_API_KEY=your-api-key
+./run-agent.sh --provider gemini
 ```
 
 ## HTTP API
