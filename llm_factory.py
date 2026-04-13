@@ -1,28 +1,22 @@
 import os
 
 from langchain_anthropic import ChatAnthropic
-from langchain_cohere import ChatCohere
-from langchain_fireworks import ChatFireworks
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_groq import ChatGroq
 from langchain_mistralai import ChatMistralAI
-from langchain_openai import ChatOpenAI
+from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from langchain_openrouter import ChatOpenRouter
-from langchain_together import ChatTogether
 
 _DEFAULT_MODELS = {
     "ollama": "llama3.2",
     "openai": "gpt-4.1-nano",
     "gemini": "gemini-2.5-flash",
     "anthropic": "claude-sonnet-4-6",
-    "groq": "llama-3.3-70b-versatile",
-    "mistral": "mistral-large-latest",
-    "openrouter": "openrouter/auto",
-    "cohere": "command-r-plus",
-    "together": "meta-llama/Llama-3.3-70b-instruct-turbo",
-    "fireworks": "accounts/fireworks/models/llama-v3p3-70b-instruct",
+    "azure": "gpt-4o",
+    "meta": "Llama-4-Scout-17B-16E-Instruct",
     "deepseek": "deepseek-chat",
+    "mistral": "mistral-large-latest",
     "xai": "grok-3-mini",
+    "openrouter": "openrouter/auto",
 }
 
 _PROVIDERS = {
@@ -59,50 +53,21 @@ _PROVIDERS = {
             "max_tokens": 4096,
         },
     ),
-    "groq": (
-        ChatGroq,
+    "azure": (
+        AzureChatOpenAI,
         {
-            "api_key": os.environ.get("GROQ_API_KEY"),
+            "azure_endpoint": os.environ.get("AZURE_OPENAI_ENDPOINT"),
+            "api_key": os.environ.get("AZURE_OPENAI_API_KEY"),
+            "api_version": os.environ.get("AZURE_OPENAI_API_VERSION", "2025-01-01-preview"),
             "temperature": 0.7,
             "max_tokens": 4096,
         },
     ),
-    "mistral": (
-        ChatMistralAI,
+    "meta": (
+        ChatOpenAI,
         {
-            "api_key": os.environ.get("MISTRAL_API_KEY"),
-            "temperature": 0.7,
-            "max_tokens": 4096,
-        },
-    ),
-    "openrouter": (
-        ChatOpenRouter,
-        {
-            "api_key": os.environ.get("OPENROUTER_API_KEY"),
-            "temperature": 0.7,
-            "max_tokens": 4096,
-        },
-    ),
-    "cohere": (
-        ChatCohere,
-        {
-            "cohere_api_key": os.environ.get("COHERE_API_KEY"),
-            "temperature": 0.7,
-            "max_tokens": 4096,
-        },
-    ),
-    "together": (
-        ChatTogether,
-        {
-            "together_api_key": os.environ.get("TOGETHER_API_KEY"),
-            "temperature": 0.7,
-            "max_tokens": 4096,
-        },
-    ),
-    "fireworks": (
-        ChatFireworks,
-        {
-            "fireworks_api_key": os.environ.get("FIREWORKS_API_KEY"),
+            "base_url": "https://api.llama.com/compat/v1",
+            "api_key": os.environ.get("LLAMA_API_KEY"),
             "temperature": 0.7,
             "max_tokens": 4096,
         },
@@ -116,11 +81,27 @@ _PROVIDERS = {
             "max_tokens": 4096,
         },
     ),
+    "mistral": (
+        ChatMistralAI,
+        {
+            "api_key": os.environ.get("MISTRAL_API_KEY"),
+            "temperature": 0.7,
+            "max_tokens": 4096,
+        },
+    ),
     "xai": (
         ChatOpenAI,
         {
             "base_url": "https://api.x.ai/v1",
             "api_key": os.environ.get("XAI_API_KEY"),
+            "temperature": 0.7,
+            "max_tokens": 4096,
+        },
+    ),
+    "openrouter": (
+        ChatOpenRouter,
+        {
+            "api_key": os.environ.get("OPENROUTER_API_KEY"),
             "temperature": 0.7,
             "max_tokens": 4096,
         },
@@ -136,4 +117,3 @@ def create_llm(provider: str = None):
     print(f"Creating LLM, provider={provider}, model={model}")
     cls, kwargs = _PROVIDERS[provider]
     return cls(model=model, **kwargs)
-
