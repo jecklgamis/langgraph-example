@@ -19,7 +19,7 @@ A LangGraph agent with local function tools, guardrails, memory, human-in-the-lo
 ## Getting Started
 
 ```bash
-pip install -r requirements.txt
+uv sync
 ./run-agent.sh
 ```
 
@@ -33,7 +33,7 @@ export GEMINI_API_KEY=your-api-key
 ## HTTP API
 
 ```bash
-python server_api.py
+uv run server_api.py
 
 # Single response
 curl -X POST http://localhost:8000/chat \

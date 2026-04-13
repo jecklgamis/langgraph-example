@@ -6,21 +6,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Install dependencies
-pip install -r requirements.txt
+uv sync
 
 # Run the agent (interactive REPL)
 ./run-agent.sh
 LLM_PROVIDER=openai ./run-agent.sh
 
 # Run the agent as an HTTP API
-python server_api.py
+uv run server_api.py
 
 # Run the MCP server (from mcp_servers/example/)
 ./mcp_servers/example/run-mcp-server.sh
 
 # Run tests
-pytest -s
-pytest -s -k <test_name>
+uv run pytest -s
+uv run pytest -s -k <test_name>
 ```
 
 ## Architecture

@@ -4,9 +4,9 @@ IMAGE_NAME := langgraph-example:main
 
 all: install-deps test image helm-package
 install-deps:
-	pip install -r requirements.txt
+	uv sync
 test:
-	pytest -s
+	uv run pytest -s
 image:
 	docker build -t $(IMAGE_NAME) .
 run:
