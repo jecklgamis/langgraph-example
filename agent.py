@@ -103,6 +103,7 @@ async def load_mcp_tools_from_servers(stack: AsyncExitStack) -> list:
                 await session.initialize()
                 tools.extend(await load_mcp_tools(session))
                 logger.info("Connected to MCP: %s", url)
+                console.print(f"Connected to MCP server: {url}", style="green")
             except Exception as e:
                 logger.warning("Could not connect to %s: %s", url, e)
     return tools
