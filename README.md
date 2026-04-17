@@ -1,5 +1,7 @@
 # langgraph-example
 
+[![Build](https://github.com/jecklgamis/langgraph-example/actions/workflows/build.yaml/badge.svg)](https://github.com/jecklgamis/langgraph-example/actions/workflows/build.yaml)
+
 A LangGraph agent with local function tools, guardrails, memory, human-in-the-loop, and optional MCP server connections.
 
 ## Features
