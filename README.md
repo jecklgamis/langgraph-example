@@ -53,7 +53,7 @@ Use the same `thread_id` across requests to maintain conversation history.
 ## React Frontend
 
 ```bash
-./frontend/run-frontend.sh   # http://localhost:5173
+cd ./frontend && ./run-frontend.sh   # http://localhost:5173
 ```
 
 Requires `server_api.py` running on port 8000. Vite proxies `/chat` to the backend automatically.
