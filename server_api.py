@@ -4,7 +4,7 @@ from contextlib import AsyncExitStack, asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import StreamingResponse
+from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from langchain_core.messages import HumanMessage
@@ -79,7 +79,7 @@ async def check_guardrails(message: str) -> None:
 
 @app.get("/")
 async def root():
-    return {"message": "It works on my machine!", "name": "langgraph-example"}
+    return RedirectResponse(url="/playground")
 
 
 @app.post("/chat", response_model=ChatResponse)
